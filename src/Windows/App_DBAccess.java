@@ -1,25 +1,35 @@
 package Windows;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Vector;
 
 public class App_DBAccess extends JDialog {
     private JPanel mainPanel;
-    private JLabel Label_Action;
     private JComboBox comboBox_Action;
     private JButton buttonDeconnexion;
     private JButton buttonExectuerRqt;
     private JComboBox combobox_Table;
-    private JScrollPane JScrollPane_DonneesTable;
+    private JTextField textField_Colonne;
+    private JTextField textField_Set;
+    private JTextField textField_Where;
+    private JLabel JLabel_Colonne;
+    private JTable JTable_AffichageBD;
+
+    //private JScrollPane JScrollPane_DonneesTable;
 
     DefaultComboBoxModel comboBoxModel_ActionSurBD = new DefaultComboBoxModel();
     DefaultComboBoxModel comboboxModel_Table = new DefaultComboBoxModel();
 
+    DefaultTableModel JTable_AffichageBD_Model = new DefaultTableModel();
+
+    Vector vector_AffichageBD = new Vector();
 
     public App_DBAccess(String title,Statement statement){
         super();
@@ -29,15 +39,85 @@ public class App_DBAccess extends JDialog {
 
             @Override
             public void actionPerformed(ActionEvent e) {
+                String requete = null;
                 String action = comboBox_Action.getSelectedItem().toString();
                 String nomTable = combobox_Table.getSelectedItem().toString();
-                String requete = "SELECT * FROM " + "voyageur";
+                String nomColonne = textField_Colonne.getText();
+                String set = textField_Set.getText();
+                String where = textField_Where.getText();
+                int nbColonne = 0;
+
+                if(action == "SELECT * FROM") {
+                    requete = "SELECT * FROM " + nomTable;
+
+                } else
+                if (action == "SELECT COUNT(*) FROM")
+                {
+                    requete = "SELECT COUNT(*) AS totalCount FROM "+ nomTable +" WHERE "+ where;
+
+                }
+                if(action == "UPDATE...SET...WHERE") {
+                    requete = "UPDATE " + nomTable + " SET " + set + " WHERE " + where;
+                } else
+
+                if(nomTable == "Voyageur") {
+                    nomTable = "voyageur";
+                    System.out.println("nom Table = " + nomTable);
+                }
+                else
+                if ( nomTable == "Chambre")
+                {
+                    nomTable = "chambre";
+                    System.out.println("nom Table = " + nomTable);
+                }
+                if(nomTable == "Activités") {
+                    nomTable = "activite";
+                    System.out.println("nom Table = " + nomTable);
+                } else
+                if(nomTable == "Réservation") {
+                    nomTable = "reservation" ;
+                    System.out.println("nom Table = " + nomTable);
+                }
+
+                System.out.println("Requête = " + requete);
 
                 try {
-                    ResultSet rs = statement.executeQuery(requete);
-                    while (rs.next())
+                    if (action == "SELECT COUNT(*) FROM"){
+                        ResultSet rs = statement.executeQuery(requete);
+                        rs.next();
+                        long result = rs.getLong("totalCount");
+                        System.out.println("totalCount" + result);
+                    }
+                    else
+                    if(action == "UPDATE...SET...WHERE")
                     {
-                        System.out.println(rs.getString("idVoyageur")) ;
+                        statement.executeUpdate(requete);
+                        JOptionPane.showMessageDialog(null,"Mise à jour de la BD réussie","Alert",JOptionPane.WARNING_MESSAGE);
+                        ResultSet rs = statement.executeQuery(requete);
+                    }
+                    else if (action == "SELECT * FROM"){
+                        ResultSet rs = statement.executeQuery(requete);
+                        JTable_AffichageBD_Model.setRowCount(0);
+
+                        update();
+                        while (rs.next()) {
+                            Vector vectorBD = new Vector();
+
+                            vectorBD.add(rs.getObject("idVoyageur"));
+                            vectorBD.add(rs.getObject("nom"));
+                            vectorBD.add(rs.getObject("prenom"));
+                            vectorBD.add(rs.getObject("dateNaissance"));
+                            vectorBD.add(rs.getObject("email"));
+
+                            JTable_AffichageBD_Model.addRow(vectorBD);
+
+                            System.out.print("idVoyageur: " + rs.getObject("idVoyageur"));
+                            System.out.print(", nom: " + rs.getString("nom"));
+                            System.out.print(", prenom: " + rs.getString("prenom"));
+                            System.out.print(", date Naissance: " + rs.getDate("dateNaissance"));
+                            System.out.println(", email: " + rs.getString("email"));
+                        }
+
                     }
                 } catch (SQLException ex) {
                     ex.printStackTrace();
@@ -62,15 +142,28 @@ public class App_DBAccess extends JDialog {
 
 
     public void InitializeComboBox() {
-        comboBoxModel_ActionSurBD.addElement("Sélectionner tout");
-        comboBoxModel_ActionSurBD.addElement("Sélectionner premier");
-        comboBoxModel_ActionSurBD.addElement("Supprimer de la BD");
+        comboBoxModel_ActionSurBD.addElement("SELECT * FROM");
+        comboBoxModel_ActionSurBD.addElement("SELECT COUNT(*) FROM");
+        comboBoxModel_ActionSurBD.addElement("UPDATE...SET...WHERE");
+
         this.comboBox_Action.setModel(comboBoxModel_ActionSurBD);
 
         comboboxModel_Table.addElement("Voyageur");
         comboboxModel_Table.addElement("Chambre");
         comboboxModel_Table.addElement("Activités");
-        comboboxModel_Table.addElement("Groupe");
+        comboboxModel_Table.addElement("Réservation");
         this.combobox_Table.setModel(comboboxModel_Table);
+    }
+
+    public void update()
+    {
+        JTable_AffichageBD.setModel(JTable_AffichageBD_Model);
+        JTable_AffichageBD_Model.addColumn("id Voyageur");
+        JTable_AffichageBD_Model.addColumn("Nom");
+        JTable_AffichageBD_Model.addColumn("Prenom");
+        JTable_AffichageBD_Model.addColumn("Date Naissance");
+        JTable_AffichageBD_Model.addColumn("Email");
+        JTable_AffichageBD.setModel(JTable_AffichageBD_Model);
+
     }
 }
