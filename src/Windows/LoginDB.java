@@ -44,12 +44,26 @@ public class LoginDB extends JDialog{
             @Override
             public void actionPerformed(ActionEvent e) {
                 typeBD = comboBox_TypeBD.getSelectedItem().toString();
-                nomHote = JTextField_NomHote.getText();
-                numeroPort = JTextField_NumeroPort.getText();
-                nomBD = JTextField_NomBD.getText();
-                utilisateur = JTextField_Utilisateur.getText();
-                password = JTextField_Password.getText();
-                chaineConnexion = "jdbc:"+ typeBD +":"+nomHote+":"+numeroPort+"/"+nomBD;
+                if(typeBD.equals("mysql")) {
+                    System.out.println("BD Mysql");
+                    nomHote = JTextField_NomHote.getText();
+                    numeroPort = JTextField_NumeroPort.getText();
+                    nomBD = JTextField_NomBD.getText();
+                    utilisateur = JTextField_Utilisateur.getText();
+                    password = JTextField_Password.getText();
+                    chaineConnexion = "jdbc:" + typeBD + ":" + nomHote + ":" + numeroPort + "/" + nomBD;
+                } else if(typeBD.equals("oracle")){
+                    //ATTENTION : oracle sans majuscule dans combobox
+                    //jdbc:oracle:thin:@//localhost:1521/orcl
+                    //chaineConnexion = "jdbc:" + typeBD + ":" + "thin:@" + nomHote + ":" + numeroPort + "/orcl?username=" + utilisateur + "&password=" + password;
+                    System.out.println("BD Oracle");
+                    nomHote = JTextField_NomHote.getText();
+                    numeroPort = JTextField_NumeroPort.getText();
+                    //nomBD = JTextField_NomBD.getText();
+                    utilisateur = JTextField_Utilisateur.getText();
+                    password = JTextField_Password.getText();
+                    chaineConnexion = "jdbc:" + typeBD + ":" + "thin:@" + nomHote + ":" + numeroPort + "/orcl";
+                }
                 System.out.println("Chaine de connexion = " + chaineConnexion);
                 System.out.println("utilisateur = " + JTextField_Utilisateur.getText());
                 System.out.println("password = " + JTextField_Password.getText());
@@ -94,7 +108,7 @@ public class LoginDB extends JDialog{
     public void InitializeComboBox()
     {
         comboBoxModel_TypeBD.addElement("mysql");
-        comboBoxModel_TypeBD.addElement("Oracle");
+        comboBoxModel_TypeBD.addElement("oracle");
         comboBoxModel_TypeBD.addElement("SqlLite");
         this.comboBox_TypeBD.setModel(comboBoxModel_TypeBD);
 
