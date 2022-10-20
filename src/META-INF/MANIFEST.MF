@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Main-Class: MainLoginDB
+Class-Path: ojdbc11.jar mysql-connector-j-8.0.31.jar
+
