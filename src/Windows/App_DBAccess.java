@@ -108,8 +108,25 @@ public class App_DBAccess extends JDialog {
                                 v.add("DateNaissance");
                                 v.add("email");
                                 JTable_AffichageBD_Model.addRow(v);
+                                while (rs.next()) {
+                                    Vector vectorBD = new Vector();
+
+                                    vectorBD.add(rs.getObject("idVoyageur"));
+                                    vectorBD.add(rs.getObject("nom"));
+                                    vectorBD.add(rs.getObject("prenom"));
+                                    vectorBD.add(rs.getObject("dateNaissance"));
+                                    vectorBD.add(rs.getObject("email"));
+
+                                    JTable_AffichageBD_Model.addRow(vectorBD);
+
+                                    System.out.print("idVoyageur: " + rs.getObject("idVoyageur"));
+                                    System.out.print(", nom: " + rs.getString("nom"));
+                                    System.out.print(", prenom: " + rs.getString("prenom"));
+                                    System.out.print(", date Naissance: " + rs.getDate("dateNaissance"));
+                                    System.out.println(", email: " + rs.getString("email"));
+                                }
                             }
-                            if ( nomTable == "Chambre") {
+                            if ( nomTable == "chambre") {
                                 JTable_AffichageBD_Model.setRowCount(0);
                                 JTable_AffichageBD_Model.setColumnCount(3);
                                 Vector v = new Vector();
@@ -117,6 +134,19 @@ public class App_DBAccess extends JDialog {
                                 v.add("nbOccupants");
                                 v.add("prixHTVA");
                                 JTable_AffichageBD_Model.addRow(v);
+                                while (rs.next()) {
+                                    Vector vectorBD = new Vector();
+                                    vectorBD.add(rs.getObject("numeroChambre"));
+                                    vectorBD.add(rs.getObject("nbOccupants"));
+                                    vectorBD.add(rs.getObject("prixHTVA"));
+
+                                    JTable_AffichageBD_Model.addRow(vectorBD);
+
+                                    System.out.print("idVoyageur: " + rs.getObject("numeroChambre"));
+                                    System.out.print(", nom: " + rs.getString("nbOccupants"));
+                                    System.out.print(", prenom: " + rs.getString("prixHTVA"));
+
+                                }
                             }
                             if(nomTable == "activite") {
                                 JTable_AffichageBD_Model.setRowCount(0);
@@ -130,6 +160,18 @@ public class App_DBAccess extends JDialog {
                                 v.add("prixHTVA");
                                 v.add("activitecol");
                                 JTable_AffichageBD_Model.addRow(v);
+                                while (rs.next()) {
+                                    Vector vectorBD = new Vector();
+                                    vectorBD.add(rs.getObject("id"));
+                                    vectorBD.add(rs.getObject("type"));
+                                    vectorBD.add(rs.getObject("nbMaxParticipants"));
+                                    vectorBD.add(rs.getObject("nbInscrits"));
+                                    vectorBD.add(rs.getObject("dureeHeure"));
+                                    vectorBD.add(rs.getObject("prixHTVA"));
+                                    vectorBD.add(rs.getObject("activitecol"));
+
+                                    JTable_AffichageBD_Model.addRow(vectorBD);
+                                }
                             }
                             if(nomTable == "reservation") {
                                 JTable_AffichageBD_Model.setRowCount(0);
@@ -141,6 +183,16 @@ public class App_DBAccess extends JDialog {
                                 v.add("prixNet");
                                 v.add("paye");
                                 JTable_AffichageBD_Model.addRow(v);
+                                while (rs.next()) {
+                                    Vector vectorBD = new Vector();
+                                    vectorBD.add(rs.getObject("idReservation"));
+                                    vectorBD.add(rs.getObject("dateDebut"));
+                                    vectorBD.add(rs.getObject("dateFin"));
+                                    vectorBD.add(rs.getObject("prixNet"));
+                                    vectorBD.add(rs.getObject("paye"));
+
+                                    JTable_AffichageBD_Model.addRow(vectorBD);
+                                }
                             }
                             /*JTable_AffichageBD_Model.setRowCount(0);
                             JTable_AffichageBD_Model.setColumnCount(5);
@@ -152,23 +204,7 @@ public class App_DBAccess extends JDialog {
                             v.add("email");
                             JTable_AffichageBD_Model.addRow(v);*/
                             //update();
-                            while (rs.next()) {
-                                Vector vectorBD = new Vector();
 
-                                vectorBD.add(rs.getObject("idVoyageur"));
-                                vectorBD.add(rs.getObject("nom"));
-                                vectorBD.add(rs.getObject("prenom"));
-                                vectorBD.add(rs.getObject("dateNaissance"));
-                                vectorBD.add(rs.getObject("email"));
-
-                                JTable_AffichageBD_Model.addRow(vectorBD);
-
-                                System.out.print("idVoyageur: " + rs.getObject("idVoyageur"));
-                                System.out.print(", nom: " + rs.getString("nom"));
-                                System.out.print(", prenom: " + rs.getString("prenom"));
-                                System.out.print(", date Naissance: " + rs.getDate("dateNaissance"));
-                                System.out.println(", email: " + rs.getString("email"));
-                            }
                             JTable_AffichageBD.setModel(JTable_AffichageBD_Model);
                     }
                 } catch (SQLException ex) {
@@ -181,7 +217,12 @@ public class App_DBAccess extends JDialog {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                try {
+                    statement.close();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+                App_DBAccess.super.dispose();
             }
         });
 
