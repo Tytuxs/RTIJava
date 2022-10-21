@@ -99,31 +99,47 @@ public class App_DBAccess extends JDialog {
                             ResultSet rs = statement.executeQuery(requete);
                             System.out.println("nomtabel = " + nomTable);
                             if(nomTable == "voyageur") {
-                                JTable_AffichageBD_Model.setRowCount(0);
-                                JTable_AffichageBD_Model.setColumnCount(5);
-                                Vector v = new Vector();
-                                v.add("idVoyageur");
-                                v.add("nom");
-                                v.add("prenom");
-                                v.add("DateNaissance");
-                                v.add("email");
-                                JTable_AffichageBD_Model.addRow(v);
-                                while (rs.next()) {
-                                    Vector vectorBD = new Vector();
+                                if(nomColonne =="") {
+                                    JTable_AffichageBD_Model.setRowCount(0);
+                                    JTable_AffichageBD_Model.setColumnCount(5);
+                                    Vector v = new Vector();
+                                    v.add("idVoyageur");
+                                    v.add("nom");
+                                    v.add("prenom");
+                                    v.add("DateNaissance");
+                                    v.add("email");
+                                    JTable_AffichageBD_Model.addRow(v);
+                                    while (rs.next()) {
+                                        Vector vectorBD = new Vector();
 
-                                    vectorBD.add(rs.getObject("idVoyageur"));
-                                    vectorBD.add(rs.getObject("nom"));
-                                    vectorBD.add(rs.getObject("prenom"));
-                                    vectorBD.add(rs.getObject("dateNaissance"));
-                                    vectorBD.add(rs.getObject("email"));
+                                        vectorBD.add(rs.getObject("idVoyageur"));
+                                        vectorBD.add(rs.getObject("nom"));
+                                        vectorBD.add(rs.getObject("prenom"));
+                                        vectorBD.add(rs.getObject("dateNaissance"));
+                                        vectorBD.add(rs.getObject("email"));
 
-                                    JTable_AffichageBD_Model.addRow(vectorBD);
+                                        JTable_AffichageBD_Model.addRow(vectorBD);
 
-                                    System.out.print("idVoyageur: " + rs.getObject("idVoyageur"));
-                                    System.out.print(", nom: " + rs.getString("nom"));
-                                    System.out.print(", prenom: " + rs.getString("prenom"));
-                                    System.out.print(", date Naissance: " + rs.getDate("dateNaissance"));
-                                    System.out.println(", email: " + rs.getString("email"));
+                                        System.out.print("idVoyageur: " + rs.getObject("idVoyageur"));
+                                        System.out.print(", nom: " + rs.getString("nom"));
+                                        System.out.print(", prenom: " + rs.getString("prenom"));
+                                        System.out.print(", date Naissance: " + rs.getDate("dateNaissance"));
+                                        System.out.println(", email: " + rs.getString("email"));
+                                    }
+                                }
+                                else {
+                                    JTable_AffichageBD_Model.setRowCount(0);
+                                    JTable_AffichageBD_Model.setColumnCount(1);
+                                    Vector v = new Vector();
+                                    v.add(nomColonne);
+                                    JTable_AffichageBD_Model.addRow(v);
+                                    while (rs.next()) {
+                                        Vector vectorBD = new Vector();
+
+                                        vectorBD.add(rs.getObject(nomColonne));
+
+                                        JTable_AffichageBD_Model.addRow(vectorBD);
+                                    }
                                 }
                             }
                             if ( nomTable == "chambre") {
