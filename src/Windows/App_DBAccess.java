@@ -57,7 +57,7 @@ public class App_DBAccess extends JDialog {
 
                 }
                 if(action == "UPDATE...SET...WHERE") {
-                    requete = "UPDATE " + nomTable + " SET " + set + " WHERE " + where;
+                   requete = "UPDATE " + nomTable + " SET " + set + " WHERE " + where;
                 } else
 
                 if(nomTable == "Voyageur") {
@@ -70,11 +70,11 @@ public class App_DBAccess extends JDialog {
                     nomTable = "chambre";
                     System.out.println("nom Table = " + nomTable);
                 }
-                if(nomTable == "Activités") {
+                if(nomTable == "Activite") {
                     nomTable = "activite";
                     System.out.println("nom Table = " + nomTable);
                 } else
-                if(nomTable == "Réservation") {
+                if(nomTable == "Reservation") {
                     nomTable = "reservation" ;
                     System.out.println("nom Table = " + nomTable);
                 }
@@ -82,42 +82,94 @@ public class App_DBAccess extends JDialog {
                 System.out.println("Requête = " + requete);
 
                 try {
-                    if (action == "SELECT COUNT(*) FROM"){
+                        if (action == "SELECT COUNT(*) FROM"){
                         ResultSet rs = statement.executeQuery(requete);
                         rs.next();
                         long result = rs.getLong("totalCount");
                         System.out.println("totalCount" + result);
-                    }
-                    else
-                    if(action == "UPDATE...SET...WHERE")
-                    {
-                        statement.executeUpdate(requete);
-                        JOptionPane.showMessageDialog(null,"Mise à jour de la BD réussie","Alert",JOptionPane.WARNING_MESSAGE);
-                        ResultSet rs = statement.executeQuery(requete);
-                    }
-                    else if (action == "SELECT * FROM"){
-                        ResultSet rs = statement.executeQuery(requete);
-                        JTable_AffichageBD_Model.setRowCount(0);
-
-                        update();
-                        while (rs.next()) {
-                            Vector vectorBD = new Vector();
-
-                            vectorBD.add(rs.getObject("idVoyageur"));
-                            vectorBD.add(rs.getObject("nom"));
-                            vectorBD.add(rs.getObject("prenom"));
-                            vectorBD.add(rs.getObject("dateNaissance"));
-                            vectorBD.add(rs.getObject("email"));
-
-                            JTable_AffichageBD_Model.addRow(vectorBD);
-
-                            System.out.print("idVoyageur: " + rs.getObject("idVoyageur"));
-                            System.out.print(", nom: " + rs.getString("nom"));
-                            System.out.print(", prenom: " + rs.getString("prenom"));
-                            System.out.print(", date Naissance: " + rs.getDate("dateNaissance"));
-                            System.out.println(", email: " + rs.getString("email"));
                         }
+                        else
+                        if(action == "UPDATE...SET...WHERE")
+                        {
+                            statement.executeUpdate(requete);
+                            JOptionPane.showMessageDialog(null,"Mise à jour de la BD réussie","Alert",JOptionPane.WARNING_MESSAGE);
+                            ResultSet rs = statement.executeQuery(requete);
+                        }
+                        else if (action == "SELECT * FROM"){
+                            ResultSet rs = statement.executeQuery(requete);
+                            System.out.println("nomtabel = " + nomTable);
+                            if(nomTable == "voyageur") {
+                                JTable_AffichageBD_Model.setRowCount(0);
+                                JTable_AffichageBD_Model.setColumnCount(5);
+                                Vector v = new Vector();
+                                v.add("idVoyageur");
+                                v.add("nom");
+                                v.add("prenom");
+                                v.add("DateNaissance");
+                                v.add("email");
+                                JTable_AffichageBD_Model.addRow(v);
+                            }
+                            if ( nomTable == "Chambre") {
+                                JTable_AffichageBD_Model.setRowCount(0);
+                                JTable_AffichageBD_Model.setColumnCount(3);
+                                Vector v = new Vector();
+                                v.add("nrChambre");
+                                v.add("nbOccupants");
+                                v.add("prixHTVA");
+                                JTable_AffichageBD_Model.addRow(v);
+                            }
+                            if(nomTable == "activite") {
+                                JTable_AffichageBD_Model.setRowCount(0);
+                                JTable_AffichageBD_Model.setColumnCount(7);
+                                Vector v = new Vector();
+                                v.add("id");
+                                v.add("type");
+                                v.add("nbMaxParticipants");
+                                v.add("nbInscrits");
+                                v.add("dureeHeure");
+                                v.add("prixHTVA");
+                                v.add("activitecol");
+                                JTable_AffichageBD_Model.addRow(v);
+                            }
+                            if(nomTable == "reservation") {
+                                JTable_AffichageBD_Model.setRowCount(0);
+                                JTable_AffichageBD_Model.setColumnCount(5);
+                                Vector v = new Vector();
+                                v.add("idReservation");
+                                v.add("dateDebut");
+                                v.add("dateFin");
+                                v.add("prixNet");
+                                v.add("paye");
+                                JTable_AffichageBD_Model.addRow(v);
+                            }
+                            /*JTable_AffichageBD_Model.setRowCount(0);
+                            JTable_AffichageBD_Model.setColumnCount(5);
+                            Vector v = new Vector();
+                            v.add("idVoyageur");
+                            v.add("nom");
+                            v.add("prenom");
+                            v.add("DateNaissance");
+                            v.add("email");
+                            JTable_AffichageBD_Model.addRow(v);*/
+                            //update();
+                            while (rs.next()) {
+                                Vector vectorBD = new Vector();
 
+                                vectorBD.add(rs.getObject("idVoyageur"));
+                                vectorBD.add(rs.getObject("nom"));
+                                vectorBD.add(rs.getObject("prenom"));
+                                vectorBD.add(rs.getObject("dateNaissance"));
+                                vectorBD.add(rs.getObject("email"));
+
+                                JTable_AffichageBD_Model.addRow(vectorBD);
+
+                                System.out.print("idVoyageur: " + rs.getObject("idVoyageur"));
+                                System.out.print(", nom: " + rs.getString("nom"));
+                                System.out.print(", prenom: " + rs.getString("prenom"));
+                                System.out.print(", date Naissance: " + rs.getDate("dateNaissance"));
+                                System.out.println(", email: " + rs.getString("email"));
+                            }
+                            JTable_AffichageBD.setModel(JTable_AffichageBD_Model);
                     }
                 } catch (SQLException ex) {
                     ex.printStackTrace();
@@ -150,8 +202,8 @@ public class App_DBAccess extends JDialog {
 
         comboboxModel_Table.addElement("Voyageur");
         comboboxModel_Table.addElement("Chambre");
-        comboboxModel_Table.addElement("Activités");
-        comboboxModel_Table.addElement("Réservation");
+        comboboxModel_Table.addElement("Activite");
+        comboboxModel_Table.addElement("Reservation");
         this.combobox_Table.setModel(comboboxModel_Table);
     }
 
