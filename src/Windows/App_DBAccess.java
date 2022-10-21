@@ -82,6 +82,7 @@ public class App_DBAccess extends JDialog {
                 System.out.println("Requête = " + requete);
 
                 try {
+                    System.out.println("nomColonne = " + nomColonne);
                         if (action == "SELECT COUNT(*) FROM"){
                         ResultSet rs = statement.executeQuery(requete);
                         rs.next();
@@ -99,7 +100,7 @@ public class App_DBAccess extends JDialog {
                             ResultSet rs = statement.executeQuery(requete);
                             System.out.println("nomtabel = " + nomTable);
                             if(nomTable == "voyageur") {
-                                if(nomColonne =="") {
+                                if(nomColonne.equals("")) {
                                     JTable_AffichageBD_Model.setRowCount(0);
                                     JTable_AffichageBD_Model.setColumnCount(5);
                                     Vector v = new Vector();
@@ -242,7 +243,7 @@ public class App_DBAccess extends JDialog {
             }
         });
 
-        this.setMinimumSize(new Dimension(600,600));
+        this.setMinimumSize(new Dimension(1500,600));
         this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         this.setContentPane(mainPanel);
         this.pack();
