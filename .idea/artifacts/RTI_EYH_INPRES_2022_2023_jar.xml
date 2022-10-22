@@ -1,0 +1,12 @@
+<component name="ArtifactManager">
+  <artifact name="RTI_EYH_INPRES_2022-2023:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/RTI_EYH_INPRES_2022_2023_jar</output-path>
+    <root id="root">
+      <element id="archive" name="RTI_EYH_INPRES_2022-2023.jar">
+        <element id="module-output" name="RTI_EYH_INPRES_2022-2023" />
+      </element>
+      <element id="file-copy" path="$PROJECT_DIR$/lib/ojdbc11.jar" />
+      <element id="file-copy" path="$PROJECT_DIR$/lib/mysql-connector-j-8.0.31.jar" />
+    </root>
+  </artifact>
+</component>
