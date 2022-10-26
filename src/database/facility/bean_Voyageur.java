@@ -21,10 +21,20 @@ public class bean_Voyageur {
         return MyInstruction;
     }
 
-    public DefaultTableModel Select(DefaultTableModel modele) throws SQLException
+    public ResultSet Select() throws SQLException
     {
         PreparedStatement statement = MyConnexion.prepareStatement("select * from voyageur;",ResultSet.TYPE_SCROLL_SENSITIVE,ResultSet.CONCUR_UPDATABLE);
-        ResultSet rs = statement.executeQuery();
+        return statement.executeQuery();
+    }
+
+    public DefaultTableModel Afficher(DefaultTableModel modele, ResultSet rs) throws SQLException {
+        Vector nomColonne = new Vector();
+        nomColonne.add("idVoyageur");
+        nomColonne.add("nom");
+        nomColonne.add("prenom");
+        nomColonne.add("DateNaissance");
+        nomColonne.add("email");
+        modele.addRow(nomColonne);
         while (rs.next()) {
             Vector v = new Vector();
             v.add(Integer.parseInt(rs.getString("idVoyageur")));

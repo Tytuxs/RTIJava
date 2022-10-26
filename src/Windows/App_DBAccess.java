@@ -46,15 +46,8 @@ public class App_DBAccess extends JDialog {
                     JTable_AffichageBD_Model.setRowCount(0);
                     JTable_AffichageBD_Model.setColumnCount(5);
                     if(Objects.equals(combobox_Table.getSelectedItem().toString(), "Voyageur")) {
-                        Vector nomColonne = new Vector();
-                        nomColonne.add("idVoyageur");
-                        nomColonne.add("nom");
-                        nomColonne.add("prenom");
-                        nomColonne.add("DateNaissance");
-                        nomColonne.add("email");
-                        JTable_AffichageBD_Model.addRow(nomColonne);
-                        JTable_AffichageBD.setModel(bean.Select(JTable_AffichageBD_Model));
-
+                        ResultSet rs = bean.Select();
+                        JTable_AffichageBD.setModel(bean.Afficher(JTable_AffichageBD_Model, rs));
                     }
                 }
                 catch (SQLException exception) {
