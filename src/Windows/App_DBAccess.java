@@ -1,5 +1,7 @@
 package Windows;
 
+import database.facility.bean_Voyageur;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -7,7 +9,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.util.Objects;
 import java.util.Vector;
 
 public class App_DBAccess extends JDialog {
@@ -31,7 +33,7 @@ public class App_DBAccess extends JDialog {
 
     Vector vector_AffichageBD = new Vector();
 
-    public App_DBAccess(String title,Statement statement){
+    public App_DBAccess(bean_Voyageur bean){
         super();
         InitializeComboBox();
 
@@ -39,193 +41,41 @@ public class App_DBAccess extends JDialog {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                String requete = null;
-                String action = comboBox_Action.getSelectedItem().toString();
-                String nomTable = combobox_Table.getSelectedItem().toString();
-                String nomColonne = textField_Colonne.getText();
-                String set = textField_Set.getText();
-                String where = textField_Where.getText();
-                int nbColonne = 0;
-
-                if(action == "SELECT * FROM") {
-                    requete = "SELECT * FROM " + nomTable;
-
-                } else
-                if (action == "SELECT COUNT(*) FROM")
-                {
-                    requete = "SELECT COUNT(*) AS totalCount FROM "+ nomTable +" WHERE "+ where;
-
-                }
-                if(action == "UPDATE...SET...WHERE") {
-                   requete = "UPDATE " + nomTable + " SET " + set + " WHERE " + where;
-                } else
-
-                if(nomTable == "Voyageur") {
-                    nomTable = "voyageur";
-                    System.out.println("nom Table = " + nomTable);
-                }
-                else
-                if ( nomTable == "Chambre")
-                {
-                    nomTable = "chambre";
-                    System.out.println("nom Table = " + nomTable);
-                }
-                if(nomTable == "Activite") {
-                    nomTable = "activite";
-                    System.out.println("nom Table = " + nomTable);
-                } else
-                if(nomTable == "Reservation") {
-                    nomTable = "reservation" ;
-                    System.out.println("nom Table = " + nomTable);
-                }
-
-                System.out.println("Requête = " + requete);
-
                 try {
-                    System.out.println("nomColonne = " + nomColonne);
-                        if (action == "SELECT COUNT(*) FROM"){
-                        ResultSet rs = statement.executeQuery(requete);
-                        rs.next();
-                        long result = rs.getLong("totalCount");
-                        System.out.println("totalCount" + result);
+                    if(Objects.equals(combobox_Table.getSelectedItem().toString(), "Voyageur")) {
+                        ResultSet rs = bean.Select();
+                        JTable_AffichageBD_Model.setRowCount(0);
+                        JTable_AffichageBD_Model.setColumnCount(5);
+                        Vector v = new Vector();
+                        v.add("idVoyageur");
+                        v.add("nom");
+                        v.add("prenom");
+                        v.add("DateNaissance");
+                        v.add("email");
+                        JTable_AffichageBD_Model.addRow(v);
+                        while (rs.next()) {
+                            Vector vectorBD = new Vector();
+
+                            vectorBD.add(rs.getObject("idVoyageur"));
+                            vectorBD.add(rs.getObject("nom"));
+                            vectorBD.add(rs.getObject("prenom"));
+                            vectorBD.add(rs.getObject("dateNaissance"));
+                            vectorBD.add(rs.getObject("email"));
+
+                            JTable_AffichageBD_Model.addRow(vectorBD);
+
+                            System.out.print("idVoyageur: " + rs.getObject("idVoyageur"));
+                            System.out.print(", nom: " + rs.getString("nom"));
+                            System.out.print(", prenom: " + rs.getString("prenom"));
+                            System.out.print(", date Naissance: " + rs.getDate("dateNaissance"));
+                            System.out.println(", email: " + rs.getString("email"));
                         }
-                        else
-                        if(action == "UPDATE...SET...WHERE")
-                        {
-                            statement.executeUpdate(requete);
-                            JOptionPane.showMessageDialog(null,"Mise à jour de la BD réussie","Alert",JOptionPane.WARNING_MESSAGE);
-                            ResultSet rs = statement.executeQuery(requete);
-                        }
-                        else if (action == "SELECT * FROM"){
-                            ResultSet rs = statement.executeQuery(requete);
-                            System.out.println("nomtabel = " + nomTable);
-                            if(nomTable == "voyageur") {
-                                if(nomColonne.equals("")) {
-                                    JTable_AffichageBD_Model.setRowCount(0);
-                                    JTable_AffichageBD_Model.setColumnCount(5);
-                                    Vector v = new Vector();
-                                    v.add("idVoyageur");
-                                    v.add("nom");
-                                    v.add("prenom");
-                                    v.add("DateNaissance");
-                                    v.add("email");
-                                    JTable_AffichageBD_Model.addRow(v);
-                                    while (rs.next()) {
-                                        Vector vectorBD = new Vector();
 
-                                        vectorBD.add(rs.getObject("idVoyageur"));
-                                        vectorBD.add(rs.getObject("nom"));
-                                        vectorBD.add(rs.getObject("prenom"));
-                                        vectorBD.add(rs.getObject("dateNaissance"));
-                                        vectorBD.add(rs.getObject("email"));
-
-                                        JTable_AffichageBD_Model.addRow(vectorBD);
-
-                                        System.out.print("idVoyageur: " + rs.getObject("idVoyageur"));
-                                        System.out.print(", nom: " + rs.getString("nom"));
-                                        System.out.print(", prenom: " + rs.getString("prenom"));
-                                        System.out.print(", date Naissance: " + rs.getDate("dateNaissance"));
-                                        System.out.println(", email: " + rs.getString("email"));
-                                    }
-                                }
-                                else {
-                                    JTable_AffichageBD_Model.setRowCount(0);
-                                    JTable_AffichageBD_Model.setColumnCount(1);
-                                    Vector v = new Vector();
-                                    v.add(nomColonne);
-                                    JTable_AffichageBD_Model.addRow(v);
-                                    while (rs.next()) {
-                                        Vector vectorBD = new Vector();
-
-                                        vectorBD.add(rs.getObject(nomColonne));
-
-                                        JTable_AffichageBD_Model.addRow(vectorBD);
-                                    }
-                                }
-                            }
-                            if ( nomTable == "chambre") {
-                                JTable_AffichageBD_Model.setRowCount(0);
-                                JTable_AffichageBD_Model.setColumnCount(3);
-                                Vector v = new Vector();
-                                v.add("nrChambre");
-                                v.add("nbOccupants");
-                                v.add("prixHTVA");
-                                JTable_AffichageBD_Model.addRow(v);
-                                while (rs.next()) {
-                                    Vector vectorBD = new Vector();
-                                    vectorBD.add(rs.getObject("numeroChambre"));
-                                    vectorBD.add(rs.getObject("nbOccupants"));
-                                    vectorBD.add(rs.getObject("prixHTVA"));
-
-                                    JTable_AffichageBD_Model.addRow(vectorBD);
-
-                                    System.out.print("idVoyageur: " + rs.getObject("numeroChambre"));
-                                    System.out.print(", nom: " + rs.getString("nbOccupants"));
-                                    System.out.print(", prenom: " + rs.getString("prixHTVA"));
-
-                                }
-                            }
-                            if(nomTable == "activite") {
-                                JTable_AffichageBD_Model.setRowCount(0);
-                                JTable_AffichageBD_Model.setColumnCount(7);
-                                Vector v = new Vector();
-                                v.add("id");
-                                v.add("type");
-                                v.add("nbMaxParticipants");
-                                v.add("nbInscrits");
-                                v.add("dureeHeure");
-                                v.add("prixHTVA");
-                                v.add("activitecol");
-                                JTable_AffichageBD_Model.addRow(v);
-                                while (rs.next()) {
-                                    Vector vectorBD = new Vector();
-                                    vectorBD.add(rs.getObject("id"));
-                                    vectorBD.add(rs.getObject("type"));
-                                    vectorBD.add(rs.getObject("nbMaxParticipants"));
-                                    vectorBD.add(rs.getObject("nbInscrits"));
-                                    vectorBD.add(rs.getObject("dureeHeure"));
-                                    vectorBD.add(rs.getObject("prixHTVA"));
-                                    vectorBD.add(rs.getObject("activitecol"));
-
-                                    JTable_AffichageBD_Model.addRow(vectorBD);
-                                }
-                            }
-                            if(nomTable == "reservation") {
-                                JTable_AffichageBD_Model.setRowCount(0);
-                                JTable_AffichageBD_Model.setColumnCount(5);
-                                Vector v = new Vector();
-                                v.add("idReservation");
-                                v.add("dateDebut");
-                                v.add("dateFin");
-                                v.add("prixNet");
-                                v.add("paye");
-                                JTable_AffichageBD_Model.addRow(v);
-                                while (rs.next()) {
-                                    Vector vectorBD = new Vector();
-                                    vectorBD.add(rs.getObject("idReservation"));
-                                    vectorBD.add(rs.getObject("dateDebut"));
-                                    vectorBD.add(rs.getObject("dateFin"));
-                                    vectorBD.add(rs.getObject("prixNet"));
-                                    vectorBD.add(rs.getObject("paye"));
-
-                                    JTable_AffichageBD_Model.addRow(vectorBD);
-                                }
-                            }
-                            /*JTable_AffichageBD_Model.setRowCount(0);
-                            JTable_AffichageBD_Model.setColumnCount(5);
-                            Vector v = new Vector();
-                            v.add("idVoyageur");
-                            v.add("nom");
-                            v.add("prenom");
-                            v.add("DateNaissance");
-                            v.add("email");
-                            JTable_AffichageBD_Model.addRow(v);*/
-                            //update();
-
-                            JTable_AffichageBD.setModel(JTable_AffichageBD_Model);
+                        JTable_AffichageBD.setModel(JTable_AffichageBD_Model);
                     }
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
+                }
+                catch (SQLException exception) {
+                    exception.printStackTrace();
                 }
             }
         });
@@ -235,7 +85,7 @@ public class App_DBAccess extends JDialog {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    statement.close();
+                    bean.closeStatement();
                 } catch (SQLException ex) {
                     ex.printStackTrace();
                 }
