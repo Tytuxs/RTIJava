@@ -48,7 +48,7 @@ public class App_DBAccess extends JDialog {
                     if(Objects.equals(combobox_Table.getSelectedItem().toString(), "Chambre"))
                         bean.setMaxColumn(3);
                     if(Objects.equals(combobox_Table.getSelectedItem().toString(), "Activite"))
-                        bean.setMaxColumn(7);
+                        bean.setMaxColumn(6);
                     if(Objects.equals(combobox_Table.getSelectedItem().toString(), "Reservation"))
                         bean.setMaxColumn(5);
 
