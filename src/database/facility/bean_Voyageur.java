@@ -1,6 +1,10 @@
 package database.facility;
 
+import Classe.Voyageur;
+
+import javax.swing.table.DefaultTableModel;
 import java.sql.*;
+import java.util.Vector;
 
 public class bean_Voyageur {
     //private final Class MyDriver;
@@ -17,10 +21,20 @@ public class bean_Voyageur {
         return MyInstruction;
     }
 
-    public ResultSet Select() throws SQLException
+    public DefaultTableModel Select(DefaultTableModel modele) throws SQLException
     {
-        PreparedStatement pStmt = MyConnexion.prepareStatement("select * from voyageur;",ResultSet.TYPE_SCROLL_SENSITIVE,ResultSet.CONCUR_UPDATABLE);
-        return pStmt.executeQuery();
+        PreparedStatement statement = MyConnexion.prepareStatement("select * from voyageur;",ResultSet.TYPE_SCROLL_SENSITIVE,ResultSet.CONCUR_UPDATABLE);
+        ResultSet rs = statement.executeQuery();
+        while (rs.next()) {
+            Vector v = new Vector();
+            v.add(Integer.parseInt(rs.getString("idVoyageur")));
+            v.add(rs.getString("nom"));
+            v.add(rs.getString("prenom"));
+            v.add(rs.getString("dateNaissance"));
+            v.add(rs.getString("email"));
+            modele.addRow(v);
+        }
+        return modele;
     }
 
     public void closeStatement() throws SQLException {

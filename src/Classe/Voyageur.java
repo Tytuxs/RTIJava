@@ -9,52 +9,59 @@ public class Voyageur {
         this._numeroClient = numeroClient;
     }
 
-    private char _nom;
-    public char get_nom() {
+    private String _nom;
+    public String get_nom() {
         return _nom;
     }
-    public void set_nom(char nom) {
+    public void set_nom(String nom) {
         this._nom = nom;
     }
 
-    private char _prenom;
-    public char get_prenom() {
+    private String _prenom;
+    public String get_prenom() {
         return _prenom;
     }
-    public void set_prenom(char prenom) {
+    public void set_prenom(String prenom) {
         this._prenom = prenom;
     }
 
-    private char _nationalite;
-    public char get_nationalite() {
+    private String _nationalite;
+    public String get_nationalite() {
         return _nationalite;
     }
-    public void set_nationalite(char nationalite) {
+    public void set_nationalite(String nationalite) {
         this._nationalite = nationalite;
     }
 
-    private char _dateDeNaissance;
-    public char get_dateDeNaissance() {
+    private String _dateDeNaissance;
+    public String get_dateDeNaissance() {
         return _dateDeNaissance;
     }
-    public void set_dateDeNaissance(char dateDeNaissance) {
+    public void set_dateDeNaissance(String dateDeNaissance) {
         this._dateDeNaissance = dateDeNaissance;
     }
 
 
-    private char _email;
-    public char get_email() {
+    private String _email;
+    public String get_email() {
         return _email;
     }
-    public void set_email(char _email) {
+    public void set_email(String _email) {
         this._email = _email;
     }
 
-    public Voyageur(int numeroClient, char nom, char prenom, char nationalite, char dateDeNaissance, char email) {
+    public Voyageur(int numeroClient, String nom, String prenom, String nationalite, String dateDeNaissance, String email) {
         _numeroClient = numeroClient;
         _nom = nom;
         _prenom = prenom;
         _nationalite = nationalite;
+        _dateDeNaissance = dateDeNaissance;
+        _email = email;
+    }
+    public Voyageur(int numeroClient, String nom, String prenom, String dateDeNaissance, String email) {
+        _numeroClient = numeroClient;
+        _nom = nom;
+        _prenom = prenom;
         _dateDeNaissance = dateDeNaissance;
         _email = email;
     }

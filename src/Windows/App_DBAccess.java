@@ -1,5 +1,6 @@
 package Windows;
 
+import Classe.Voyageur;
 import database.facility.bean_Voyageur;
 
 import javax.swing.*;
@@ -42,36 +43,18 @@ public class App_DBAccess extends JDialog {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
+                    JTable_AffichageBD_Model.setRowCount(0);
+                    JTable_AffichageBD_Model.setColumnCount(5);
                     if(Objects.equals(combobox_Table.getSelectedItem().toString(), "Voyageur")) {
-                        ResultSet rs = bean.Select();
-                        JTable_AffichageBD_Model.setRowCount(0);
-                        JTable_AffichageBD_Model.setColumnCount(5);
-                        Vector v = new Vector();
-                        v.add("idVoyageur");
-                        v.add("nom");
-                        v.add("prenom");
-                        v.add("DateNaissance");
-                        v.add("email");
-                        JTable_AffichageBD_Model.addRow(v);
-                        while (rs.next()) {
-                            Vector vectorBD = new Vector();
+                        Vector nomColonne = new Vector();
+                        nomColonne.add("idVoyageur");
+                        nomColonne.add("nom");
+                        nomColonne.add("prenom");
+                        nomColonne.add("DateNaissance");
+                        nomColonne.add("email");
+                        JTable_AffichageBD_Model.addRow(nomColonne);
+                        JTable_AffichageBD.setModel(bean.Select(JTable_AffichageBD_Model));
 
-                            vectorBD.add(rs.getObject("idVoyageur"));
-                            vectorBD.add(rs.getObject("nom"));
-                            vectorBD.add(rs.getObject("prenom"));
-                            vectorBD.add(rs.getObject("dateNaissance"));
-                            vectorBD.add(rs.getObject("email"));
-
-                            JTable_AffichageBD_Model.addRow(vectorBD);
-
-                            System.out.print("idVoyageur: " + rs.getObject("idVoyageur"));
-                            System.out.print(", nom: " + rs.getString("nom"));
-                            System.out.print(", prenom: " + rs.getString("prenom"));
-                            System.out.print(", date Naissance: " + rs.getDate("dateNaissance"));
-                            System.out.println(", email: " + rs.getString("email"));
-                        }
-
-                        JTable_AffichageBD.setModel(JTable_AffichageBD_Model);
                     }
                 }
                 catch (SQLException exception) {
