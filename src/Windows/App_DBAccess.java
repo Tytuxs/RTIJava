@@ -34,8 +34,6 @@ public class App_DBAccess extends JDialog {
 
     DefaultTableModel JTable_AffichageBD_Model = new DefaultTableModel();
 
-    Vector vector_AffichageBD = new Vector();
-
     public App_DBAccess(BD_Bean bean){
         super();
         InitializeComboBox();
