@@ -2,7 +2,6 @@ package Windows;
 
 import Classe.Voyageur;
 import database.facility.BD_Bean;
-import database.facility.bean_Voyageur;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
