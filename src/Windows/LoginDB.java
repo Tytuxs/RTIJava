@@ -1,15 +1,12 @@
 package Windows;
 
 import database.facility.BD_Bean;
-import database.facility.bean_Voyageur;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 public class LoginDB extends JDialog{
 
@@ -39,9 +36,7 @@ public class LoginDB extends JDialog{
         InitializeComboBox();
 
         connexionButton.addActionListener(new ActionListener() {
-            //Statement statement = null;
-            bean_Voyageur bean;
-            BD_Bean bean2;
+            BD_Bean bean;
             @Override
             public void actionPerformed(ActionEvent e) {
                 typeBD = comboBox_TypeBD.getSelectedItem().toString();
@@ -60,7 +55,7 @@ public class LoginDB extends JDialog{
                     System.out.println("BD Oracle");
                     nomHote = JTextField_NomHote.getText();
                     numeroPort = JTextField_NumeroPort.getText();
-                    //nomBD = JTextField_NomBD.getText();
+
                     utilisateur = JTextField_Utilisateur.getText();
                     password = JTextField_Password.getText();
                     chaineConnexion = "jdbc:" + typeBD + ":" + "thin:@" + nomHote + ":" + numeroPort + "/orcl";
@@ -69,25 +64,25 @@ public class LoginDB extends JDialog{
                 System.out.println("utilisateur = " + JTextField_Utilisateur.getText());
                 System.out.println("password = " + JTextField_Password.getText());
 
-                Connection connection = null;
                 try {
-                    bean = new bean_Voyageur(chaineConnexion,utilisateur,password);
-                    bean2 = new BD_Bean(chaineConnexion,utilisateur,password);
+                    bean = new BD_Bean(chaineConnexion,utilisateur,password);
 
+                    System.out.println("Statmeent try =" + bean.getMyStatement());
 
-                    //statement = connection.createStatement();
-                    //System.out.println(statement);
-                    if (bean2.getMyStatement() != null)
+                    if (bean.getMyStatement() != null)
                     {
+                        System.out.println("Statmeent reussi=" + bean.getMyStatement());
                         //JOptionPane.showMessageDialog(null,"Connexion à la BD réussie","Alert",JOptionPane.WARNING_MESSAGE);
-                        App_DBAccess app_dbAccess = new App_DBAccess(bean2);
+                        App_DBAccess app_dbAccess = new App_DBAccess(bean);
                         app_dbAccess.setVisible(true);
                         LoginDB.super.dispose();
                     }
                     else {
+                        System.out.println("Statmeent echec=" + bean.getMyStatement());
+
                         JOptionPane.showMessageDialog(null,"Échec de la connexion à la BD","Alert",JOptionPane.WARNING_MESSAGE);
                     }
-                } catch (SQLException | ClassNotFoundException ex) {
+                } catch (SQLException ex) {
                     ex.printStackTrace();
                 }
             }
