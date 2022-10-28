@@ -68,7 +68,16 @@ public class App_DBAccess extends JDialog {
                     }
                     if(comboBox_Action.getSelectedItem().toString().equals("UPDATE...SET...WHERE")) {
                         update = bean.Update();
-                        JOptionPane.showMessageDialog(null,"Mise à jour de la BD réussie","Alert",JOptionPane.WARNING_MESSAGE);
+                        System.out.println("update" + update);
+                        if(update == 1) {
+                            JOptionPane.showMessageDialog(null, "Mise à jour de la BD réussie", "Alert", JOptionPane.WARNING_MESSAGE);
+                        }
+                        else if(update == 0) {
+                            JOptionPane.showMessageDialog(null, "le tuple n'existe pas", "Alert", JOptionPane.WARNING_MESSAGE);
+                        }
+                        else {
+                            JOptionPane.showMessageDialog(null, "Erreur mise à jour de la BD", "Alert", JOptionPane.WARNING_MESSAGE);
+                        }
                     }
                     JTable_AffichageBD_Model.setRowCount(0);
 
