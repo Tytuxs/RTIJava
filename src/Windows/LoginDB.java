@@ -1,16 +1,14 @@
 package Windows;
 
-import database.facility.MyJDBC;
+import database.facility.bean_Voyageur;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.concurrent.CompletableFuture;
 
 public class LoginDB extends JDialog{
 
@@ -40,7 +38,8 @@ public class LoginDB extends JDialog{
         InitializeComboBox();
 
         connexionButton.addActionListener(new ActionListener() {
-            Statement statement = null;
+            //Statement statement = null;
+            bean_Voyageur bean;
             @Override
             public void actionPerformed(ActionEvent e) {
                 typeBD = comboBox_TypeBD.getSelectedItem().toString();
@@ -70,20 +69,21 @@ public class LoginDB extends JDialog{
 
                 Connection connection = null;
                 try {
-                    connection = DriverManager.getConnection(chaineConnexion,utilisateur,password);
-                    statement = connection.createStatement();
-                    System.out.println(statement);
-                    if (statement != null)
+                    bean = new bean_Voyageur(chaineConnexion,utilisateur,password);
+
+                    //statement = connection.createStatement();
+                    //System.out.println(statement);
+                    if (bean.getMyInstruction() != null)
                     {
                         //JOptionPane.showMessageDialog(null,"Connexion à la BD réussie","Alert",JOptionPane.WARNING_MESSAGE);
-                        App_DBAccess app_dbAccess = new App_DBAccess("BD " + nomBD, statement);
+                        App_DBAccess app_dbAccess = new App_DBAccess(bean);
                         app_dbAccess.setVisible(true);
                         LoginDB.super.dispose();
                     }
                     else {
                         JOptionPane.showMessageDialog(null,"Échec de la connexion à la BD","Alert",JOptionPane.WARNING_MESSAGE);
                     }
-                } catch (SQLException ex) {
+                } catch (SQLException | ClassNotFoundException ex) {
                     ex.printStackTrace();
                 }
             }
