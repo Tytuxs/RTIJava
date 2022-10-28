@@ -14,7 +14,9 @@ public class BD_Bean {
     //CONSTRUCTOR
     public BD_Bean(String string, String user, String pwd) throws SQLException
     {
+        System.out.println("getconnextion = " + DriverManager.getConnection(string, user, pwd));
         this.MyConnexion = DriverManager.getConnection(string, user, pwd);
+        System.out.println("myconnexion = " + MyConnexion);
         this.MyStatement = MyConnexion.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,ResultSet.CONCUR_UPDATABLE);
 
         setTable("");
