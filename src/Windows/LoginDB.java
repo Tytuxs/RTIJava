@@ -1,5 +1,6 @@
 package Windows;
 
+import database.facility.BD_Bean;
 import database.facility.bean_Voyageur;
 
 import javax.swing.*;
@@ -40,6 +41,7 @@ public class LoginDB extends JDialog{
         connexionButton.addActionListener(new ActionListener() {
             //Statement statement = null;
             bean_Voyageur bean;
+            BD_Bean bean2;
             @Override
             public void actionPerformed(ActionEvent e) {
                 typeBD = comboBox_TypeBD.getSelectedItem().toString();
@@ -70,13 +72,15 @@ public class LoginDB extends JDialog{
                 Connection connection = null;
                 try {
                     bean = new bean_Voyageur(chaineConnexion,utilisateur,password);
+                    bean2 = new BD_Bean(chaineConnexion,utilisateur,password);
+
 
                     //statement = connection.createStatement();
                     //System.out.println(statement);
-                    if (bean.getMyInstruction() != null)
+                    if (bean2.getMyStatement() != null)
                     {
                         //JOptionPane.showMessageDialog(null,"Connexion à la BD réussie","Alert",JOptionPane.WARNING_MESSAGE);
-                        App_DBAccess app_dbAccess = new App_DBAccess(bean);
+                        App_DBAccess app_dbAccess = new App_DBAccess(bean2);
                         app_dbAccess.setVisible(true);
                         LoginDB.super.dispose();
                     }
