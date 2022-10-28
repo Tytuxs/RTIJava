@@ -14,9 +14,7 @@ public class BD_Bean {
     //CONSTRUCTOR
     public BD_Bean(String string, String user, String pwd) throws SQLException
     {
-        System.out.println("getconnextion = " + DriverManager.getConnection(string, user, pwd));
         this.MyConnexion = DriverManager.getConnection(string, user, pwd);
-        System.out.println("myconnexion = " + MyConnexion);
         this.MyStatement = MyConnexion.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,ResultSet.CONCUR_UPDATABLE);
 
         setTable("");
@@ -127,23 +125,23 @@ public class BD_Bean {
 
         return pStmt.executeUpdate();
     }
+    /*
+        public int Insert() throws SQLException
+        {
+            String query = "Insert into <tables> ";
 
-    public int Insert() throws SQLException
-    {
-        String query = "Insert into <tables> ";
+            if(!this.getColumns().equals("")) {
+                query = query + "(<columns>) ";
+            }
 
-        if(!this.getColumns().equals("")) {
-            query = query + "(<columns>) ";
+            query = query + "values <valeurs>";
+
+            String SQL = query.replaceAll("<tables>", getTable()).replaceAll("<columns>", getColumns()).replaceAll("<valeurs>", getValues());
+            PreparedStatement pStmt = this.getConnection().prepareCall(SQL, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+
+            return pStmt.executeUpdate();
         }
-
-        query = query + "values <valeurs>";
-
-        String SQL = query.replaceAll("<tables>", getTable()).replaceAll("<columns>", getColumns()).replaceAll("<valeurs>", getValues());
-        PreparedStatement pStmt = this.getConnection().prepareCall(SQL, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
-
-        return pStmt.executeUpdate();
-    }
-
+    */
     public void closeStatement() throws SQLException {
         this.MyStatement.close();
     }

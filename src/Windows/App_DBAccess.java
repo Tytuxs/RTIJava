@@ -1,8 +1,6 @@
 package Windows;
 
-import Classe.Voyageur;
 import database.facility.BD_Bean;
-import database.facility.bean_Voyageur;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -27,11 +25,8 @@ public class App_DBAccess extends JDialog {
     private JLabel JLabel_Colonne;
     private JTable JTable_AffichageBD;
 
-    //private JScrollPane JScrollPane_DonneesTable;
-
     DefaultComboBoxModel comboBoxModel_ActionSurBD = new DefaultComboBoxModel();
     DefaultComboBoxModel comboboxModel_Table = new DefaultComboBoxModel();
-
     DefaultTableModel JTable_AffichageBD_Model = new DefaultTableModel();
 
     public App_DBAccess(BD_Bean bean){
@@ -68,13 +63,7 @@ public class App_DBAccess extends JDialog {
                     }
                     if(comboBox_Action.getSelectedItem().toString().equals("UPDATE...SET...WHERE")) {
                         update = bean.Update();
-                        System.out.println("update" + update);
-                        if(update == 1) {
-                            JOptionPane.showMessageDialog(null, "Mise à jour de la BD réussie", "Alert", JOptionPane.WARNING_MESSAGE);
-                        }
-                        else if(update == 0) {
-                            JOptionPane.showMessageDialog(null, "le tuple n'existe pas", "Alert", JOptionPane.WARNING_MESSAGE);
-                        }
+                        JOptionPane.showMessageDialog(null,"Mise à jour de la BD réussie","Alert",JOptionPane.WARNING_MESSAGE);
                     }
                     JTable_AffichageBD_Model.setRowCount(0);
 
@@ -145,15 +134,4 @@ public class App_DBAccess extends JDialog {
         this.combobox_Table.setModel(comboboxModel_Table);
     }
 
-    public void update()
-    {
-        JTable_AffichageBD.setModel(JTable_AffichageBD_Model);
-        JTable_AffichageBD_Model.addColumn("id Voyageur");
-        JTable_AffichageBD_Model.addColumn("Nom");
-        JTable_AffichageBD_Model.addColumn("Prenom");
-        JTable_AffichageBD_Model.addColumn("Date Naissance");
-        JTable_AffichageBD_Model.addColumn("Email");
-        JTable_AffichageBD.setModel(JTable_AffichageBD_Model);
-
-    }
 }
