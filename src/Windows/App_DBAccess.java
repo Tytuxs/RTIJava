@@ -27,11 +27,8 @@ public class App_DBAccess extends JDialog {
     private JLabel JLabel_Colonne;
     private JTable JTable_AffichageBD;
 
-    //private JScrollPane JScrollPane_DonneesTable;
-
     DefaultComboBoxModel comboBoxModel_ActionSurBD = new DefaultComboBoxModel();
     DefaultComboBoxModel comboboxModel_Table = new DefaultComboBoxModel();
-
     DefaultTableModel JTable_AffichageBD_Model = new DefaultTableModel();
 
     public App_DBAccess(BD_Bean bean){
