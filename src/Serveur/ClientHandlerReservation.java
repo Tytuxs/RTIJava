@@ -58,9 +58,13 @@ public class ClientHandlerReservation extends Thread {
                     while (rs.next()) {
                         String userbd = rs.getString(2);
                         String pwdbd = rs.getString(3);
+
+                        if(user.equals(userbd) && password.equals(pwdbd)) {
+                            ok = 1;
+                        }
                     }
 
-                    if(user.equals("Oli") && password.equals("4653")) {
+                    if(ok == 1) {
                         dos.writeUTF("OK");
 
                         // write on output stream based on the
