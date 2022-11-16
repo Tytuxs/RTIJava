@@ -1,11 +1,11 @@
 package Client;
 
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Scanner;
+import java.util.StringTokenizer;
 
 /**
  * This class implements java socket client
@@ -15,12 +15,6 @@ import java.util.Scanner;
 public class ClientReservation {
     public static void main(String[] args) {
         //date marche et normalement se met sous ce format dans mysql aussi
-        Date dt = new Date();
-
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-
-        String currentTime = sdf.format(dt);
-        System.out.println(currentTime);
 
         try
         {
@@ -60,11 +54,11 @@ public class ClientReservation {
                         while (continuer == 1) {
                             System.out.println("Que voulez-vous faire ?\n" + "1)BROOM\n" + "2)PROOM\n" + "3)CROOM\n" + "4)LROOMS\n" + "5)Deconnexion");
                             String tosend = scn.nextLine();
-                            dos.writeUTF(tosend);
 
                             // If client sends exit,close this connection
                             // and then break from the while loop
                             if (tosend.equals("Exit")) {
+                                dos.writeUTF("Exit");
                                 System.out.println("Closing this connection : " + s);
                                 s.close();
                                 System.out.println("Connection closed");
@@ -77,9 +71,122 @@ public class ClientReservation {
                                 continuer = 0;
                             }
 
-                            // printing date or time as requested by client
-                            String received = dis.readUTF();
-                            System.out.println(received);
+                            String message;
+
+                            switch (tosend) {
+                                case "BROOM" :
+                                    dos.writeUTF("BROOM");
+                                    System.out.println("Motel ou Village");
+                                    String MouV = scn.nextLine();
+                                    System.out.println("Simple, Double ou Familiale(4pers) ?");
+                                    String typeChambre = scn.nextLine();
+                                    System.out.println("nombre de nuits : ");
+                                    String nbNuits = scn.nextLine();
+                                    System.out.println("date d'arrivee(yyyy-MM-dd) : ");
+                                    String date = scn.nextLine();
+                                    System.out.println("Votre nom");
+                                    String nom = scn.nextLine();
+                                    dos.writeUTF(MouV);
+                                    dos.writeUTF(typeChambre);
+                                    dos.writeUTF(nbNuits);
+                                    dos.writeUTF(date);
+                                    dos.writeUTF(nom);
+
+                                    while (true) {
+                                        message = dis.readUTF();
+                                        if(message.equals("FIN"))
+                                            break;
+                                        else {
+                                            StringTokenizer st = new StringTokenizer(message,";");
+                                            while (st.hasMoreTokens()) {
+                                                    System.out.println("numero de la chambre : " + st.nextToken());
+                                                    System.out.println("prix : " + st.nextToken());
+                                            }
+                                        }
+                                    }
+                                    System.out.println("numero chambre selectionnee : ");
+                                    String choix = scn.nextLine();
+                                    if(!choix.equals("Aucune")) {
+                                        System.out.println("prix : ");
+                                        String prix = scn.nextLine();
+                                        dos.writeUTF(choix + ";" + prix + ";");
+                                        String confirmation = dis.readUTF();
+
+                                        if (confirmation.equals("OK")) {
+                                            System.out.println("Reservation prix en compte");
+                                        } else {
+                                            System.out.println("Erreur Reservation");
+                                        }
+                                    }
+                                    else {
+                                        dos.writeUTF("Aucune;");
+                                    }
+
+                                    break;
+
+                                case "PROOM" :
+                                    dos.writeUTF("PROOM");
+                                    System.out.println("Nom du client referent : ");
+                                    String nomClient = scn.nextLine();
+                                    dos.writeUTF(nomClient);
+
+                                    while (true) {
+                                        message = dis.readUTF();
+                                        if(message.equals("FIN"))
+                                            break;
+                                        else {
+                                            StringTokenizer st = new StringTokenizer(message,";");
+                                            while (st.hasMoreTokens()) {
+                                                System.out.println("id de la reservation : " + st.nextToken());
+                                                System.out.println("numero de la chambre : " + st.nextToken());
+                                                System.out.println("prix de la chambre : " + st.nextToken());
+                                                System.out.println("Personne referent : " + st.nextToken());
+                                                System.out.println("paye : " + st.nextToken());
+                                            }
+                                        }
+                                    }
+
+                                    System.out.println("Voulez-vous payer ?\n1)Oui\n2)Non");
+                                    String paye = scn.nextLine();
+
+                                    if(paye.equals("Oui") || paye.equals("1")) {
+                                        dos.writeUTF("OK");
+                                        System.out.println("id de la reservation : ");
+                                        String id = scn.nextLine();
+                                        dos.writeUTF(id);
+                                        String confirmation = dis.readUTF();
+                                        if (confirmation.equals("OK")) {
+                                            System.out.println("Paiement Accepte");
+                                        } else {
+                                            System.out.println("Erreur paiement");
+                                        }
+                                    }
+                                    else {
+                                        dos.writeUTF("NOK");
+                                    }
+                                    break;
+
+                                case "CROOM" :
+                                    dos.writeUTF("CROOM");
+                                    System.out.println("id de la reservation : ");
+                                    String id = scn.nextLine();
+                                    dos.writeUTF(id);
+                                    System.out.println("message retour delete : " + dis.readUTF());
+
+                                    break;
+
+                                case "LROOMS" :
+                                    dos.writeUTF("LROOMS");
+                                    while (true) {
+                                        message = dis.readUTF();
+                                        System.out.println(message);
+                                        if(message.equals("FIN"))
+                                            break;
+                                    }
+                                    break;
+                                default :
+                                    break;
+                            }
                         }
                     } else {
                         System.out.println("User ou password incorrect");

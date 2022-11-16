@@ -101,12 +101,12 @@ public class BD_Bean {
             colonnes = "Count(*) as total";
         }
         if(!getCondition().equals("")) {
-            query = query + " where <Cond>";
+            query = query + " where <cond>";
         }
 
         query = query + ";";
 
-        String SQL = query.replaceAll("<columns>", colonnes).replaceAll("<tables>", getTable()).replaceAll("<Cond>",getCondition());
+        String SQL = query.replaceAll("<columns>", colonnes).replaceAll("<tables>", getTable()).replaceAll("<cond>",getCondition());
         PreparedStatement pStmt = this.getConnection().prepareStatement(SQL, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
         System.out.println("Requête : "+SQL);
 
@@ -118,14 +118,36 @@ public class BD_Bean {
         String query = "Update <tables> set <values>";
 
         if(!getCondition().equals("")) {
-            query = query + " where <Cond>";
+            query = query + " where <cond>";
         }
 
-        String SQL = query.replaceAll("<values>", getValues()).replaceAll("<tables>", getTable()).replaceAll("<Cond>",getCondition());
+        String SQL = query.replaceAll("<values>", getValues()).replaceAll("<tables>", getTable()).replaceAll("<cond>",getCondition());
         PreparedStatement pStmt = this.getConnection().prepareStatement(SQL, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
         System.out.println("Requête : "+SQL);
 
         return pStmt.executeUpdate();
+    }
+
+    public ResultSet Login() throws SQLException {
+        return null;
+    }
+
+    public int delete() throws SQLException {
+        String query = "delete from <tables> where <cond>";
+
+        String SQL = query.replaceAll("<tables>", getTable()).replaceAll("<cond>",getCondition());
+        PreparedStatement pStmt = this.getConnection().prepareStatement(SQL, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+        System.out.println("Requête : "+SQL);
+
+        return pStmt.executeUpdate();
+    }
+
+    public ResultSet RequestLROOMS(String date) throws SQLException {
+        return null;
+    }
+
+    public ResultSet RequestBROOM(String categorie, String typeChambre, String dateDeb, String dateFin) throws SQLException {
+        return null;
     }
 
     public int Insert() throws SQLException

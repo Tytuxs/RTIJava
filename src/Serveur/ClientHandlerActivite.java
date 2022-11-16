@@ -11,7 +11,6 @@ public class ClientHandlerActivite extends Thread {
     final DataOutputStream dos;
     final DataInputStream dis;
 
-    // Constructor
     public ClientHandlerActivite(Socket s, DataInputStream dis, DataOutputStream dos)
     {
         this.s = s;
