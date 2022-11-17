@@ -65,32 +65,42 @@ public class App_BROOM extends JDialog{
                             break;
                         else {
                             StringTokenizer st = new StringTokenizer(message, ";");
-                            while (st.hasMoreTokens()) {
-                                System.out.println("numero de la chambre : " + st.nextToken());
-                                System.out.println("prix : " + st.nextToken());
-                            }
+                            Vector v = new Vector();
+                            v.add(st.nextToken());
+                            v.add(st.nextToken());
+                            JTable_Affichage.addRow(v);
                         }
-                    }
-                    //DEMANDE AU CLIENT LA CHAMBRE QU'IL SOUHAITE ET AUSSI LE PRIX CAR PAS ENREGISTRE TANT QUE PAS D'INTERFACE
-                    System.out.println("numero chambre selectionnee : ");
-                    String choix = null;
-                    if (!choix.equals("Aucune")) {
-                        System.out.println("prix : ");
-                        String prix = null;
-                        dos.writeUTF(choix + ";" + prix + ";");
-                        String confirmation = dis.readUTF();
-
-                        if (confirmation.equals("OK")) {
-                            System.out.println("Reservation prix en compte");
-                        } else {
-                            System.out.println("Erreur Reservation");
-                        }
-                    } else {
-                        dos.writeUTF("Aucune;");
                     }
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }
+                tableAffichage.setModel(JTable_Affichage);
+            }
+        });
+
+        buttonValiderResa.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //DEMANDE AU CLIENT LA CHAMBRE QU'IL SOUHAITE ET AUSSI LE PRIX CAR PAS ENREGISTRE TANT QUE PAS D'INTERFACE
+                    try {
+                        if (tableAffichage.getSelectedRow() != -1) {
+                            System.out.println("prix : ");
+                            String numChambre = (String) tableAffichage.getValueAt(tableAffichage.getSelectedRow(), 0);
+                            String prix = (String) tableAffichage.getValueAt(tableAffichage.getSelectedRow(), 1);
+                            dos.writeUTF(numChambre + ";" + prix + ";");
+                            String confirmation = dis.readUTF();
+
+                            if (confirmation.equals("OK")) {
+                                JOptionPane.showMessageDialog(null, "Réservation acceptée", "Alert", JOptionPane.WARNING_MESSAGE);
+                            } else {
+                                JOptionPane.showMessageDialog(null, "Erreur Réservation", "Alert", JOptionPane.WARNING_MESSAGE);
+                            }
+                        }
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+
+                App_BROOM.super.dispose();
             }
         });
 
