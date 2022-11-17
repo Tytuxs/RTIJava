@@ -83,6 +83,7 @@ public class ClientHandlerReservation extends Thread {
                             System.out.println("Boucle continuer");
                             //ATTENTE DE LA REQUÊTE
                             String requete = dis.readUTF();
+                            System.out.println("Requete recue : " + requete);
                             switch (requete) {
 
                                 case "BROOM" :

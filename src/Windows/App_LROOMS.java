@@ -3,6 +3,8 @@ package Windows;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -14,6 +16,7 @@ public class App_LROOMS extends JDialog {
 
     private JPanel LROOMSPanel;
     private JTable table1;
+    private JButton buttonQuitter;
 
     DefaultTableModel JTable_Affichage = new DefaultTableModel();
 
@@ -28,6 +31,7 @@ public class App_LROOMS extends JDialog {
         JTable_Affichage.addRow(V);
 
         String message = dis.readUTF();
+        //LECTURE DES MESSAGES RECUS ET BOUCLE JUSQU'AU MESSAGE "FIN"
         while (true) {
             message = dis.readUTF();
             if(message.equals("FIN"))
@@ -43,6 +47,14 @@ public class App_LROOMS extends JDialog {
         }
 
         table1.setModel(JTable_Affichage);
+
+        buttonQuitter.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // closing resources
+                App_LROOMS.super.dispose();
+            }
+        });
         
         this.setMinimumSize(new Dimension(1500, 600));
         this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);

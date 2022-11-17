@@ -96,16 +96,13 @@ public class App_ReservationClient extends JDialog {
             buttonLROOMS.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                 /*   //LECTURE DES MESSAGES RECUS ET BOUCLE JUSQU'AU MESSAGE "FIN"
-                    dos.writeUTF("LROOMS");
-                    //
-                    while (true) {
-                        message = dis.readUTF();
-                        System.out.println(message);
-                        if(message.equals("FIN"))
-                            break;
+                    App_LROOMS app_broom = null;
+                    try {
+                        app_broom = new App_LROOMS(s,dos,dis);
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
                     }
-*/
+                    app_broom.setVisible(true);
                 }
             });
 
