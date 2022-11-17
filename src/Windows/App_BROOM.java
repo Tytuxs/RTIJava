@@ -22,6 +22,7 @@ public class App_BROOM extends JDialog{
     private JTextField textFieldNomClient;
     private JButton buttonLancerRecherche;
     private JTable tableAffichage;
+    private JButton buttonValiderResa;
 
     DefaultTableModel JTable_Affichage = new DefaultTableModel();
     DefaultComboBoxModel comboBoxModel_Categorie = new DefaultComboBoxModel();
@@ -49,7 +50,7 @@ public class App_BROOM extends JDialog{
                     String nbNuits = textFieldNbNuits.getText();
                     String date = textFieldDateArrivee.getText();
                     String nom = textFieldNomClient.getText();
-                    //ENVOI DES INFOS AUX CLIENTS SOUS FORME DE STRING
+                    //ENVOI DES INFOS AU SERVEUR SOUS FORME DE STRING
                     dos.writeUTF(categorie);
                     dos.writeUTF(typeChambre);
                     dos.writeUTF(nbNuits);

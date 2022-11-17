@@ -40,7 +40,7 @@ public class ClientHandlerReservation extends Thread {
             System.out.println("Boucle connexion");
             try {
 
-                // receive the answer from client
+                // // RECEPTION DE LA REPONSE DU CLIENT
                 received = dis.readUTF();
 
                 if(received.equals("Exit"))
@@ -81,7 +81,7 @@ public class ClientHandlerReservation extends Thread {
                             BR.setValues("");
 
                             System.out.println("Boucle continuer");
-                            //attente de la requete
+                            //ATTENTE DE LA REQUÊTE
                             String requete = dis.readUTF();
                             switch (requete) {
 
@@ -109,6 +109,7 @@ public class ClientHandlerReservation extends Thread {
                                         dos.writeUTF(message);
                                     }
                                     dos.writeUTF("FIN");
+
                                     //ATTENTE DU CHOIX DU CLIENT POUR LA CHAMBRE
                                     String retour = dis.readUTF();
                                     StringTokenizer st = new StringTokenizer(retour,";");
@@ -254,8 +255,6 @@ public class ClientHandlerReservation extends Thread {
             e.printStackTrace();
         }
     }
-
-
     /*private void stop() {
         this.stop();
     }*/
