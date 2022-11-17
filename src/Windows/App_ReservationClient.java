@@ -24,6 +24,7 @@ public class App_ReservationClient extends JDialog {
                 public void actionPerformed(ActionEvent e) {
 
                     App_BROOM app_broom = new App_BROOM(s,dos,dis);
+                    app_broom.setVisible(true);
                 }
             });
 
