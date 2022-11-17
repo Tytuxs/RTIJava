@@ -24,60 +24,6 @@ public class App_ReservationClient extends JDialog {
                 public void actionPerformed(ActionEvent e) {
 
                     App_BROOM app_broom = new App_BROOM(s,dos,dis);
-/*
-                    //REQUETE BROOM
-                    dos.writeUTF("BROOM");
-                    //DEMANDE DES INFOS AU CLIENT
-                    System.out.println("Motel ou Village");
-                    String MouV = scn.nextLine();
-                    System.out.println("Simple, Double ou Familiale(4pers) ?");
-                    String typeChambre = scn.nextLine();
-                    System.out.println("nombre de nuits : ");
-                    String nbNuits = scn.nextLine();
-                    System.out.println("date d'arrivee(yyyy-MM-dd) : ");
-                    String date = scn.nextLine();
-                    System.out.println("Votre nom");
-                    String nom = scn.nextLine();
-                    //ENVOI DES INFOS AUX CLIENTS SOUS FORME DE STRING
-                    dos.writeUTF(MouV);
-                    dos.writeUTF(typeChambre);
-                    dos.writeUTF(nbNuits);
-                    dos.writeUTF(date);
-                    dos.writeUTF(nom);
-
-                    //LECTURE DES MESSAGES RECUS ET BOUCLE JUSQU'AU MESSAGE "FIN"
-                    while (true) {
-                        message = dis.readUTF();
-                        if(message.equals("FIN"))
-                            break;
-                        else {
-                            StringTokenizer st = new StringTokenizer(message,";");
-                            while (st.hasMoreTokens()) {
-                                System.out.println("numero de la chambre : " + st.nextToken());
-                                System.out.println("prix : " + st.nextToken());
-                            }
-                        }
-                    }
-                    //DEMANDE AU CLIENT LA CHAMBRE QU'IL SOUHAITE ET AUSSI LE PRIX CAR PAS ENREGISTRE TANT QUE PAS D'INTERFACE
-                    System.out.println("numero chambre selectionnee : ");
-                    String choix = scn.nextLine();
-                    if(!choix.equals("Aucune")) {
-                        System.out.println("prix : ");
-                        String prix = scn.nextLine();
-                        dos.writeUTF(choix + ";" + prix + ";");
-                        String confirmation = dis.readUTF();
-
-                        if (confirmation.equals("OK")) {
-                            System.out.println("Reservation prix en compte");
-                        } else {
-                            System.out.println("Erreur Reservation");
-                        }
-                    }
-                    else {
-                        dos.writeUTF("Aucune;");
-                    }
-
- */
                 }
             });
 
