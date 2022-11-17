@@ -58,6 +58,7 @@ public class App_ConnexionClient extends JDialog {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
+                    dos.writeUTF("EXIT");
                     dis.close();
                     dos.close();
                     s.close();
