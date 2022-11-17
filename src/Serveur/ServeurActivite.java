@@ -35,12 +35,12 @@ public class ServeurActivite extends Thread {
                 assert ss != null;
                 s = ss.accept();
 
-                System.out.println("ACTIVITE : A new client is connected : " + s);
+                System.out.println("ACTIVITE : Nouveau client connecte : " + s);
 
                 DataInputStream dis = new DataInputStream(s.getInputStream());
                 DataOutputStream dos = new DataOutputStream(s.getOutputStream());
 
-                System.out.println("ACTIVITE : Assigning new thread for this client");
+                System.out.println("ACTIVITE : Assignement d'un thread pour ce client");
 
                 ClientHandlerActivite ch = new ClientHandlerActivite(s, dis, dos);
                 Thread t = new Thread(ch);

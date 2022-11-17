@@ -41,12 +41,12 @@ public class ServeurReservation extends Thread {
                 assert ss != null;
                 s = ss.accept();
 
-                System.out.println("A new client is connected : " + s);
+                System.out.println("Nouveau client connecte : " + s);
 
                 DataInputStream dis = new DataInputStream(s.getInputStream());
                 DataOutputStream dos = new DataOutputStream(s.getOutputStream());
 
-                System.out.println("Assigning new thread for this client");
+                System.out.println("Assignement d'un thread pour ce client");
 
                 ClientHandlerReservation ch = new ClientHandlerReservation(s, dis, dos);
                 Thread t = new Thread(ch);

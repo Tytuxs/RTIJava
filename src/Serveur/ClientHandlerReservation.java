@@ -77,29 +77,33 @@ public class ClientHandlerReservation extends Thread {
                         // answer from the client
                         int continuer = 1;
                         while (continuer == 1) {
+                            //reset a chaque requete pour eviter les erreurs entre les différentes requete d'un meme lance l'une à la suite de l'autre s
                             BR.setTable("");
                             BR.setColumns("");
                             BR.setValues("");
 
                             System.out.println("Boucle continuer");
+                            //attente de la requete
                             String requete = dis.readUTF();
                             switch (requete) {
 
                                 case "BROOM" :
+                                    //recuperation des differents champs demandes
                                     String MouV = dis.readUTF();
                                     String typeChambre = dis.readUTF();
                                     String nbNuits = dis.readUTF();
                                     String date = dis.readUTF();
                                     String nom = dis.readUTF();
 
+                                    //Creation de la date de fin grace a date et nbNuits
                                     SimpleDateFormat temp = new SimpleDateFormat("yyyy-MM-dd");
                                     Calendar c = Calendar.getInstance();
                                     c.setTime(temp.parse(date));
                                     c.add(Calendar.DATE,Integer.parseInt(nbNuits) - 1);
                                     String dateFin=temp.format(c.getTime());
-                                    System.out.println("date arrivee = " + date);
+                                    /*System.out.println("date arrivee = " + date);
                                     System.out.println("Date fin = " + dateFin);
-                                    System.out.println("nombre nuits = " + Integer.parseInt(nbNuits));
+                                    System.out.println("nombre nuits = " + Integer.parseInt(nbNuits));*/
 
                                     ResultSet resultatBROOM = BR.RequestBROOM(MouV,typeChambre,date,dateFin);
                                     while (resultatBROOM.next()) {
