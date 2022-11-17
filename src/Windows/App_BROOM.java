@@ -21,13 +21,17 @@ public class App_BROOM extends JDialog{
     private JTextField textFieldNbNuits;
     private JTextField textFieldNomClient;
     private JButton buttonLancerRecherche;
-    private JTable table1;
+    private JTable tableAffichage;
+    private JButton buttonValiderResa;
 
     DefaultTableModel JTable_Affichage = new DefaultTableModel();
-
+    DefaultComboBoxModel comboBoxModel_Categorie = new DefaultComboBoxModel();
+    DefaultComboBoxModel comboBoxModel_TypeChambre = new DefaultComboBoxModel();
     public App_BROOM(Socket s, DataOutputStream dos, DataInputStream dis){
 
+        initializeComboBox();
         buttonLancerRecherche.addActionListener(new ActionListener() {
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 //REQUETE BROOM
@@ -41,18 +45,13 @@ public class App_BROOM extends JDialog{
                 try {
                     dos.writeUTF("BROOM");
                     //DEMANDE DES INFOS AU CLIENT
-                    System.out.println("Motel ou Village");
-                    String MouV = comboBoxCategorie.getSelectedItem().toString();
-                    System.out.println("Simple, Double ou Familiale(4pers) ?");
+                    String categorie = comboBoxCategorie.getSelectedItem().toString();
                     String typeChambre = comboBoxTypeChambre.getSelectedItem().toString();
-                    System.out.println("nombre de nuits : ");
                     String nbNuits = textFieldNbNuits.getText();
-                    System.out.println("date d'arrivee(yyyy-MM-dd) : ");
                     String date = textFieldDateArrivee.getText();
-                    System.out.println("Votre nom");
                     String nom = textFieldNomClient.getText();
-                    //ENVOI DES INFOS AUX CLIENTS SOUS FORME DE STRING
-                    dos.writeUTF(MouV);
+                    //ENVOI DES INFOS AU SERVEUR SOUS FORME DE STRING
+                    dos.writeUTF(categorie);
                     dos.writeUTF(typeChambre);
                     dos.writeUTF(nbNuits);
                     dos.writeUTF(date);
@@ -66,33 +65,42 @@ public class App_BROOM extends JDialog{
                             break;
                         else {
                             StringTokenizer st = new StringTokenizer(message, ";");
-                            while (st.hasMoreTokens()) {
-                                System.out.println("numero de la chambre : " + st.nextToken());
-                                System.out.println("prix : " + st.nextToken());
-
-                            }
+                            Vector v = new Vector();
+                            v.add(st.nextToken());
+                            v.add(st.nextToken());
+                            JTable_Affichage.addRow(v);
                         }
-                    }
-                    //DEMANDE AU CLIENT LA CHAMBRE QU'IL SOUHAITE ET AUSSI LE PRIX CAR PAS ENREGISTRE TANT QUE PAS D'INTERFACE
-                    System.out.println("numero chambre selectionnee : ");
-                    String choix = null;
-                    if (!choix.equals("Aucune")) {
-                        System.out.println("prix : ");
-                        String prix = null;
-                        dos.writeUTF(choix + ";" + prix + ";");
-                        String confirmation = dis.readUTF();
-
-                        if (confirmation.equals("OK")) {
-                            System.out.println("Reservation prix en compte");
-                        } else {
-                            System.out.println("Erreur Reservation");
-                        }
-                    } else {
-                        dos.writeUTF("Aucune;");
                     }
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }
+                tableAffichage.setModel(JTable_Affichage);
+            }
+        });
+
+        buttonValiderResa.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //DEMANDE AU CLIENT LA CHAMBRE QU'IL SOUHAITE ET AUSSI LE PRIX CAR PAS ENREGISTRE TANT QUE PAS D'INTERFACE
+                    try {
+                        if (tableAffichage.getSelectedRow() != -1) {
+                            System.out.println("prix : ");
+                            String numChambre = (String) tableAffichage.getValueAt(tableAffichage.getSelectedRow(), 0);
+                            String prix = (String) tableAffichage.getValueAt(tableAffichage.getSelectedRow(), 1);
+                            dos.writeUTF(numChambre + ";" + prix + ";");
+                            String confirmation = dis.readUTF();
+
+                            if (confirmation.equals("OK")) {
+                                JOptionPane.showMessageDialog(null, "Réservation acceptée", "Alert", JOptionPane.WARNING_MESSAGE);
+                            } else {
+                                JOptionPane.showMessageDialog(null, "Erreur Réservation", "Alert", JOptionPane.WARNING_MESSAGE);
+                            }
+                        }
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+
+                App_BROOM.super.dispose();
             }
         });
 
@@ -101,5 +109,17 @@ public class App_BROOM extends JDialog{
         this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         this.setContentPane(panelBROOM);
         this.pack();
+    }
+
+    public void initializeComboBox(){
+
+        comboBoxModel_Categorie.addElement("Motel");
+        comboBoxModel_Categorie.addElement("Village");
+        this.comboBoxCategorie.setModel(comboBoxModel_Categorie);
+
+        comboBoxModel_TypeChambre.addElement("Simple");
+        comboBoxModel_TypeChambre.addElement("Double");
+        comboBoxModel_TypeChambre.addElement("Familiale");
+        this.comboBoxTypeChambre.setModel(comboBoxModel_TypeChambre);
     }
 }

@@ -40,7 +40,7 @@ public class ClientHandlerReservation extends Thread {
             System.out.println("Boucle connexion");
             try {
 
-                // receive the answer from client
+                // // RECEPTION DE LA REPONSE DU CLIENT
                 received = dis.readUTF();
 
                 if(received.equals("Exit"))
@@ -67,6 +67,7 @@ public class ClientHandlerReservation extends Thread {
 
                         if(user.equals(userbd) && password.equals(pwdbd)) {
                             ok = 1;
+                            break;
                         }
                     }
 
@@ -81,13 +82,14 @@ public class ClientHandlerReservation extends Thread {
                             BR.setValues("");
 
                             System.out.println("Boucle continuer");
-                            //attente de la requete
+                            //ATTENTE DE LA REQUÊTE
                             String requete = dis.readUTF();
+                            System.out.println("Requete recue : " + requete);
                             switch (requete) {
 
                                 case "BROOM" :
                                     //recuperation des differents champs demandes
-                                    String MouV = dis.readUTF();
+                                    String categorie = dis.readUTF();
                                     String typeChambre = dis.readUTF();
                                     String nbNuits = dis.readUTF();
                                     String date = dis.readUTF();
@@ -101,7 +103,7 @@ public class ClientHandlerReservation extends Thread {
                                     String dateFin=temp.format(c.getTime());
 
                                     //REQUETE A LA BD
-                                    ResultSet resultatBROOM = BR.RequestBROOM(MouV,typeChambre,date,dateFin);
+                                    ResultSet resultatBROOM = BR.RequestBROOM(categorie,typeChambre,date,dateFin);
                                     //CREATION DU MESSAGE SOUS FORME DE STRING A ENVOYER AU CLIENT
                                     while (resultatBROOM.next()) {
                                         String message = resultatBROOM.getString("numeroChambre") + ";" + resultatBROOM.getString("PrixHTVA") + ";";
@@ -109,6 +111,7 @@ public class ClientHandlerReservation extends Thread {
                                         dos.writeUTF(message);
                                     }
                                     dos.writeUTF("FIN");
+
                                     //ATTENTE DU CHOIX DU CLIENT POUR LA CHAMBRE
                                     String retour = dis.readUTF();
                                     StringTokenizer st = new StringTokenizer(retour,";");
@@ -245,7 +248,7 @@ public class ClientHandlerReservation extends Thread {
 
         try
         {
-            // closing resources
+            System.out.println("Fermeture des ressources");
             this.s.close();
             this.dis.close();
             this.dos.close();
@@ -254,8 +257,6 @@ public class ClientHandlerReservation extends Thread {
             e.printStackTrace();
         }
     }
-
-
     /*private void stop() {
         this.stop();
     }*/
