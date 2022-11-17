@@ -87,7 +87,7 @@ public class ClientHandlerReservation extends Thread {
 
                                 case "BROOM" :
                                     //recuperation des differents champs demandes
-                                    String MouV = dis.readUTF();
+                                    String categorie = dis.readUTF();
                                     String typeChambre = dis.readUTF();
                                     String nbNuits = dis.readUTF();
                                     String date = dis.readUTF();
@@ -101,7 +101,7 @@ public class ClientHandlerReservation extends Thread {
                                     String dateFin=temp.format(c.getTime());
 
                                     //REQUETE A LA BD
-                                    ResultSet resultatBROOM = BR.RequestBROOM(MouV,typeChambre,date,dateFin);
+                                    ResultSet resultatBROOM = BR.RequestBROOM(categorie,typeChambre,date,dateFin);
                                     //CREATION DU MESSAGE SOUS FORME DE STRING A ENVOYER AU CLIENT
                                     while (resultatBROOM.next()) {
                                         String message = resultatBROOM.getString("numeroChambre") + ";" + resultatBROOM.getString("PrixHTVA") + ";";

@@ -21,13 +21,16 @@ public class App_BROOM extends JDialog{
     private JTextField textFieldNbNuits;
     private JTextField textFieldNomClient;
     private JButton buttonLancerRecherche;
-    private JTable table1;
+    private JTable tableAffichage;
 
     DefaultTableModel JTable_Affichage = new DefaultTableModel();
-
+    DefaultComboBoxModel comboBoxModel_Categorie = new DefaultComboBoxModel();
+    DefaultComboBoxModel comboBoxModel_TypeChambre = new DefaultComboBoxModel();
     public App_BROOM(Socket s, DataOutputStream dos, DataInputStream dis){
 
+        initializeComboBox();
         buttonLancerRecherche.addActionListener(new ActionListener() {
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 //REQUETE BROOM
@@ -41,18 +44,13 @@ public class App_BROOM extends JDialog{
                 try {
                     dos.writeUTF("BROOM");
                     //DEMANDE DES INFOS AU CLIENT
-                    System.out.println("Motel ou Village");
-                    String MouV = comboBoxCategorie.getSelectedItem().toString();
-                    System.out.println("Simple, Double ou Familiale(4pers) ?");
+                    String categorie = comboBoxCategorie.getSelectedItem().toString();
                     String typeChambre = comboBoxTypeChambre.getSelectedItem().toString();
-                    System.out.println("nombre de nuits : ");
                     String nbNuits = textFieldNbNuits.getText();
-                    System.out.println("date d'arrivee(yyyy-MM-dd) : ");
                     String date = textFieldDateArrivee.getText();
-                    System.out.println("Votre nom");
                     String nom = textFieldNomClient.getText();
                     //ENVOI DES INFOS AUX CLIENTS SOUS FORME DE STRING
-                    dos.writeUTF(MouV);
+                    dos.writeUTF(categorie);
                     dos.writeUTF(typeChambre);
                     dos.writeUTF(nbNuits);
                     dos.writeUTF(date);
@@ -69,7 +67,6 @@ public class App_BROOM extends JDialog{
                             while (st.hasMoreTokens()) {
                                 System.out.println("numero de la chambre : " + st.nextToken());
                                 System.out.println("prix : " + st.nextToken());
-
                             }
                         }
                     }
@@ -101,5 +98,17 @@ public class App_BROOM extends JDialog{
         this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         this.setContentPane(panelBROOM);
         this.pack();
+    }
+
+    public void initializeComboBox(){
+
+        comboBoxModel_Categorie.addElement("Motel");
+        comboBoxModel_Categorie.addElement("Village");
+        this.comboBoxCategorie.setModel(comboBoxModel_Categorie);
+
+        comboBoxModel_TypeChambre.addElement("Simple");
+        comboBoxModel_TypeChambre.addElement("Double");
+        comboBoxModel_TypeChambre.addElement("Familiale");
+        this.comboBoxTypeChambre.setModel(comboBoxModel_TypeChambre);
     }
 }
