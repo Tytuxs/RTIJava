@@ -19,7 +19,6 @@ public class ClientReservation {
             Scanner scn = new Scanner(System.in);
 
             InetAddress ip = InetAddress.getByName("localhost");
-
             Socket s = new Socket(ip, 5056);
 
             DataInputStream dis = new DataInputStream(s.getInputStream());

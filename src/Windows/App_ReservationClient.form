@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="Windows.App_MenuReservationClient">
-  <grid id="27dc6" binding="panel1" default-binding="true" layout-manager="GridLayoutManager" row-count="3" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="Windows.App_ReservationClient">
+  <grid id="27dc6" binding="panelReservation" layout-manager="GridLayoutManager" row-count="4" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
       <xy x="20" y="20" width="500" height="400"/>
@@ -8,7 +8,7 @@
     <properties/>
     <border type="none"/>
     <children>
-      <component id="e8d99" class="javax.swing.JButton" binding="ButtonCROOM">
+      <component id="e8d99" class="javax.swing.JButton" binding="buttonCROOM">
         <constraints>
           <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
@@ -16,7 +16,7 @@
           <text value="Annuler une réservation"/>
         </properties>
       </component>
-      <component id="425e0" class="javax.swing.JButton" binding="ButtonBROOM">
+      <component id="425e0" class="javax.swing.JButton" binding="buttonBROOM">
         <constraints>
           <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
@@ -24,7 +24,7 @@
           <text value="Réserver une chambre"/>
         </properties>
       </component>
-      <component id="41e0a" class="javax.swing.JButton" binding="ButtonPROOM">
+      <component id="41e0a" class="javax.swing.JButton" binding="buttonPROOM">
         <constraints>
           <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
@@ -32,7 +32,7 @@
           <text value="Payer une réservation"/>
         </properties>
       </component>
-      <component id="6f17" class="javax.swing.JButton" binding="ButtonLROOMS">
+      <component id="6f17" class="javax.swing.JButton" binding="buttonLROOMS">
         <constraints>
           <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
@@ -46,6 +46,14 @@
         </constraints>
         <properties>
           <text value="Que voulez vous faire ?"/>
+        </properties>
+      </component>
+      <component id="1b28c" class="javax.swing.JButton" binding="buttonQuitter">
+        <constraints>
+          <grid row="3" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Quitter"/>
         </properties>
       </component>
     </children>
