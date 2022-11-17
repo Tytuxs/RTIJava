@@ -7,9 +7,7 @@ import java.awt.event.ActionListener;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.Socket;
-import java.util.StringTokenizer;
 
 public class App_ReservationClient extends JDialog {
     private JButton buttonCROOM;
@@ -19,16 +17,7 @@ public class App_ReservationClient extends JDialog {
     private JButton buttonLROOMS;
     private JButton buttonQuitter;
 
-    public App_ReservationClient() throws IOException{
-
-        InetAddress ip = InetAddress.getByName("localhost");
-        Socket s = new Socket(ip, 5056);
-
-        DataInputStream dis = new DataInputStream(s.getInputStream());
-        DataOutputStream dos = new DataOutputStream(s.getOutputStream());
-        int connexion = 1;
-
-        while(connexion == 1) {
+    public App_ReservationClient(Socket s, DataOutputStream dos, DataInputStream dis) throws IOException{
 
             buttonBROOM.addActionListener(new ActionListener() {
                 @Override
@@ -169,9 +158,6 @@ public class App_ReservationClient extends JDialog {
 */
                 }
             });
-
-
-        }
     this.setMinimumSize(new Dimension(600,600));
     this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
     this.setContentPane(panelReservation);

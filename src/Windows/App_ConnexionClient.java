@@ -39,6 +39,9 @@ public class App_ConnexionClient extends JDialog {
                     System.out.println("reponse = " + reponse);
                     if (reponse.equals("OK")) {
                         System.out.println("Connexion OK");
+                        App_ReservationClient app_reservation = new App_ReservationClient(s, dos, dis);
+                        app_reservation.setVisible(true);
+                        App_ConnexionClient.super.dispose();
                     }
                     else {
                         labelExplication.setText("Utilisateur ou mot de passe incorrect");
@@ -54,7 +57,13 @@ public class App_ConnexionClient extends JDialog {
         buttonQuitter.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
+                try {
+                    dis.close();
+                    dos.close();
+                    s.close();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
             }
         });
 
