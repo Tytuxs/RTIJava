@@ -24,12 +24,14 @@ public class App_ReservationClient extends JDialog {
                 public void actionPerformed(ActionEvent e) {
 
                     App_BROOM app_broom = new App_BROOM(s,dos,dis);
+                    app_broom.setVisible(true);
                 }
             });
 
             buttonPROOM.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
+
 /*
                     //REQUETE PROOM
                     dos.writeUTF("PROOM");
