@@ -14,30 +14,24 @@ import java.util.StringTokenizer;
  */
 public class ClientReservation {
     public static void main(String[] args) {
-        //date marche et normalement se met sous ce format dans mysql aussi
-
         try
         {
             Scanner scn = new Scanner(System.in);
 
-            // getting localhost ip
             InetAddress ip = InetAddress.getByName("localhost");
 
-            // establish the connection with server port 5056
             Socket s = new Socket(ip, 5056);
 
-            // obtaining input and out streams
             DataInputStream dis = new DataInputStream(s.getInputStream());
             DataOutputStream dos = new DataOutputStream(s.getOutputStream());
             int connexion = 1;
 
             while(connexion == 1) {
 
-                // the following loop performs the exchange of
-                // information between client and client handler
                 System.out.println("1)se connecter\n" + "2)quitter");
                 String login = scn.nextLine();
 
+                //REQUETE LOGIN
                 if (login.equals("1")) {
                     dos.writeUTF("LOGIN");
                     System.out.println("user : ");
@@ -55,13 +49,11 @@ public class ClientReservation {
                             System.out.println("Que voulez-vous faire ?\n" + "1)BROOM\n" + "2)PROOM\n" + "3)CROOM\n" + "4)LROOMS\n" + "5)Deconnexion");
                             String tosend = scn.nextLine();
 
-                            // If client sends exit,close this connection
-                            // and then break from the while loop
                             if (tosend.equals("Exit")) {
                                 dos.writeUTF("Exit");
-                                System.out.println("Closing this connection : " + s);
+                                System.out.println("fermeture de la connexion : " + s);
                                 s.close();
-                                System.out.println("Connection closed");
+                                System.out.println("Connexion fermee");
                                 break;
                             }
 
@@ -75,7 +67,9 @@ public class ClientReservation {
 
                             switch (tosend) {
                                 case "BROOM" :
+                                    //REQUETE BROOM
                                     dos.writeUTF("BROOM");
+                                    //DEMANDE DES INFOS AU CLIENT
                                     System.out.println("Motel ou Village");
                                     String MouV = scn.nextLine();
                                     System.out.println("Simple, Double ou Familiale(4pers) ?");
@@ -86,12 +80,14 @@ public class ClientReservation {
                                     String date = scn.nextLine();
                                     System.out.println("Votre nom");
                                     String nom = scn.nextLine();
+                                    //ENVOI DES INFOS AUX CLIENTS SOUS FORME DE STRING
                                     dos.writeUTF(MouV);
                                     dos.writeUTF(typeChambre);
                                     dos.writeUTF(nbNuits);
                                     dos.writeUTF(date);
                                     dos.writeUTF(nom);
 
+                                    //LECTURE DES MESSAGES RECUS ET BOUCLE JUSQU'AU MESSAGE "FIN"
                                     while (true) {
                                         message = dis.readUTF();
                                         if(message.equals("FIN"))
@@ -104,6 +100,7 @@ public class ClientReservation {
                                             }
                                         }
                                     }
+                                    //DEMANDE AU CLIENT LA CHAMBRE QU'IL SOUHAITE ET AUSSI LE PRIX CAR PAS ENREGISTRE TANT QUE PAS D'INTERFACE
                                     System.out.println("numero chambre selectionnee : ");
                                     String choix = scn.nextLine();
                                     if(!choix.equals("Aucune")) {
@@ -125,11 +122,13 @@ public class ClientReservation {
                                     break;
 
                                 case "PROOM" :
+                                    //REQUETE PROOM
                                     dos.writeUTF("PROOM");
                                     System.out.println("Nom du client referent : ");
                                     String nomClient = scn.nextLine();
                                     dos.writeUTF(nomClient);
 
+                                    //LECTURE DES MESSAGES RECUS ET BOUCLE JUSQU'AU MESSAGE "FIN"
                                     while (true) {
                                         message = dis.readUTF();
                                         if(message.equals("FIN"))
@@ -146,6 +145,7 @@ public class ClientReservation {
                                         }
                                     }
 
+                                    //DEMANDE AU CLIENT DE PAYER UNE DE LEUR RESERVATION
                                     System.out.println("Voulez-vous payer ?\n1)Oui\n2)Non");
                                     String paye = scn.nextLine();
 
@@ -167,7 +167,9 @@ public class ClientReservation {
                                     break;
 
                                 case "CROOM" :
+                                    //REQUETE CROOM
                                     dos.writeUTF("CROOM");
+                                    //DEMANDE AU CLIENT L'ID POUR SUPPRIMER LA RESEVATION CORRESPONDANTE
                                     System.out.println("id de la reservation : ");
                                     String id = scn.nextLine();
                                     dos.writeUTF(id);
@@ -176,7 +178,9 @@ public class ClientReservation {
                                     break;
 
                                 case "LROOMS" :
+                                    //LECTURE DES MESSAGES RECUS ET BOUCLE JUSQU'AU MESSAGE "FIN"
                                     dos.writeUTF("LROOMS");
+                                    //
                                     while (true) {
                                         message = dis.readUTF();
                                         System.out.println(message);

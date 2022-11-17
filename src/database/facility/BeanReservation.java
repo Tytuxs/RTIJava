@@ -23,6 +23,9 @@ public class BeanReservation extends BD_Bean {
     @Override
     public ResultSet RequestLROOMS(String date) throws SQLException
     {
+        /*
+        * Permet de recuperer toutes les chambres réservés dont la date est egale ou superieur a la date d'aujourd'hui
+        */
         String colonnes = "*";
         String query = "Select <columns> from ReserActCha ";
 
@@ -32,7 +35,7 @@ public class BeanReservation extends BD_Bean {
 
         query = query + "where <cond>";
 
-        setCondition("DATE(dateDeb) >= " + date + " AND " + "typeCha IS NOT NULL");
+        setCondition("DATE(dateDeb) >= " + date + " AND " + "typeCha IS NOT NULL"); //"AND type = 'Chambre'" pourrait marcher aussi
 
         query = query + ";";
 
@@ -43,20 +46,22 @@ public class BeanReservation extends BD_Bean {
 
         return pStmt.executeQuery();
     }
+
     @Override
     public ResultSet RequestBROOM(String categorie, String typeChambre, String dateDeb, String dateFin) throws SQLException
     {
         /*
+         * Permet de recuperer toutes les chambres libre pour la tranche de date que l'utilisateur a demander
+         */
+        /*
+        REQUETE testee qui marche dans mysql, a readapter au code
+
         select * from chambre
           where categorie = 'Motel' and typeChambre = 'Simple' and numeroChambre
           NOT IN (select numChambre from reseractcha
 			where type ='Chambre' and date(datedeb) between '2023-02-11' and '2023-02-12');
         */
-        /*
-        "categorie = '" + MouV + "' AND typeChambre = '" + typeChambre
-                                            + "' AND numeroChambre NOT IN (select numChambre from reseractcha where type ='Chambre' and date(datedeb) between '"
-                                            + date + "' and '" + dateFin + "')");
-         */
+
         String colonnes = "*";
         String query = "Select * from chambre ";
 
@@ -87,6 +92,9 @@ public class BeanReservation extends BD_Bean {
     @Override
     public int Insert() throws SQLException
     {
+        /*
+         * Permet d'ajouter ce que le client a demander comme chambre
+         */
         String query = "Insert into <tables> ";
         if(!this.getColumns().equals(""))
             query = query + "(<columns>) ";

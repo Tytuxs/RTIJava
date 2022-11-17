@@ -9,7 +9,7 @@ import java.util.Vector;
 
 public class ServeurReservation extends Thread {
 
-    static Vector<ClientHandlerReservation> VCHC = new Vector<>();//stocke les clients pour le moment
+    static Vector<ClientHandlerReservation> VCHR = new Vector<>();//stocke les clients pour le moment, permettrait plus tard de limiter le nombre de client si on le souhaite
     private int PORT_CHAMBRE;
 
     public ServeurReservation(int PORT) {
@@ -51,7 +51,7 @@ public class ServeurReservation extends Thread {
                 ClientHandlerReservation ch = new ClientHandlerReservation(s, dis, dos);
                 Thread t = new Thread(ch);
 
-                VCHC.add(ch);
+                VCHR.add(ch);
                 t.start();
 
             }

@@ -10,7 +10,7 @@ import java.util.Vector;
 public class ServeurActivite extends Thread {
 
     private int PORT_RESERVATION;
-    static Vector<ClientHandlerActivite> VCHR = new Vector<ClientHandlerActivite>();
+    static Vector<ClientHandlerActivite> VCHA = new Vector<ClientHandlerActivite>();//stocke les clients pour le moment, permettrait plus tard de limiter le nombre de client si on le souhaite
 
     public ServeurActivite(int PORT) {
         setPort(PORT);
@@ -45,7 +45,7 @@ public class ServeurActivite extends Thread {
                 ClientHandlerActivite ch = new ClientHandlerActivite(s, dis, dos);
                 Thread t = new Thread(ch);
 
-                VCHR.add(ch);
+                VCHA.add(ch);
                 t.start();
             } catch (IOException e) {
                 e.printStackTrace();

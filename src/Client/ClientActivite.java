@@ -10,13 +10,6 @@ import java.util.Scanner;
 
 public class ClientActivite {
     public static void main(String[] args) {
-        Date dt = new Date();
-
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-
-        String currentTime = sdf.format(dt);
-        System.out.println(currentTime);
-
         try
         {
             Scanner scn = new Scanner(System.in);
