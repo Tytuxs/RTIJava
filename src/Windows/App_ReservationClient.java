@@ -22,6 +22,8 @@ public class App_ReservationClient extends JDialog {
             buttonBROOM.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
+
+                    App_BROOM app_broom = new App_BROOM(s,dos,dis);
 /*
                     //REQUETE BROOM
                     dos.writeUTF("BROOM");
@@ -158,6 +160,21 @@ public class App_ReservationClient extends JDialog {
 */
                 }
             });
+
+        buttonQuitter.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // closing resources
+
+                try {
+                    dis.close();
+                    dos.close();
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+
+            }
+        });
     this.setMinimumSize(new Dimension(600,600));
     this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
     this.setContentPane(panelReservation);
