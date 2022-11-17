@@ -58,12 +58,14 @@ public class App_ConnexionClient extends JDialog {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
+                    dos.writeUTF("Exit");
                     dis.close();
                     dos.close();
                     s.close();
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }
+                App_ConnexionClient.super.dispose();
             }
         });
 

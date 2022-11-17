@@ -115,12 +115,14 @@ public class App_ReservationClient extends JDialog {
                 // closing resources
 
                 try {
+                    dos.writeUTF("Exit");
+                    s.close();
                     dis.close();
                     dos.close();
                 } catch (IOException ex) {
                     throw new RuntimeException(ex);
                 }
-
+                App_ReservationClient.super.dispose();
             }
         });
     this.setMinimumSize(new Dimension(600,600));
