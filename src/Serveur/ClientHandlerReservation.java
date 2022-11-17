@@ -67,6 +67,7 @@ public class ClientHandlerReservation extends Thread {
 
                         if(user.equals(userbd) && password.equals(pwdbd)) {
                             ok = 1;
+                            break;
                         }
                     }
 
@@ -247,7 +248,7 @@ public class ClientHandlerReservation extends Thread {
 
         try
         {
-            // closing resources
+            System.out.println("Fermeture des ressources");
             this.s.close();
             this.dis.close();
             this.dos.close();
