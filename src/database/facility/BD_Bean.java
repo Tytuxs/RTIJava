@@ -14,7 +14,9 @@ public class BD_Bean {
     //CONSTRUCTOR
     public BD_Bean(String string, String user, String pwd) throws SQLException
     {
+        System.out.println("getconnextion = " + DriverManager.getConnection(string, user, pwd));
         this.MyConnexion = DriverManager.getConnection(string, user, pwd);
+        System.out.println("myconnexion = " + MyConnexion);
         this.MyStatement = MyConnexion.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE,ResultSet.CONCUR_UPDATABLE);
 
         setTable("");
@@ -99,12 +101,12 @@ public class BD_Bean {
             colonnes = "Count(*) as total";
         }
         if(!getCondition().equals("")) {
-            query = query + " where <Cond>";
+            query = query + " where <cond>";
         }
 
         query = query + ";";
 
-        String SQL = query.replaceAll("<columns>", colonnes).replaceAll("<tables>", getTable()).replaceAll("<Cond>",getCondition());
+        String SQL = query.replaceAll("<columns>", colonnes).replaceAll("<tables>", getTable()).replaceAll("<cond>",getCondition());
         PreparedStatement pStmt = this.getConnection().prepareStatement(SQL, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
         System.out.println("Requête : "+SQL);
 
@@ -116,32 +118,54 @@ public class BD_Bean {
         String query = "Update <tables> set <values>";
 
         if(!getCondition().equals("")) {
-            query = query + " where <Cond>";
+            query = query + " where <cond>";
         }
 
-        String SQL = query.replaceAll("<values>", getValues()).replaceAll("<tables>", getTable()).replaceAll("<Cond>",getCondition());
+        String SQL = query.replaceAll("<values>", getValues()).replaceAll("<tables>", getTable()).replaceAll("<cond>",getCondition());
         PreparedStatement pStmt = this.getConnection().prepareStatement(SQL, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
         System.out.println("Requête : "+SQL);
 
         return pStmt.executeUpdate();
     }
-    /*
-        public int Insert() throws SQLException
-        {
-            String query = "Insert into <tables> ";
 
-            if(!this.getColumns().equals("")) {
-                query = query + "(<columns>) ";
-            }
+    public ResultSet Login() throws SQLException {
+        return null;
+    }
 
-            query = query + "values <valeurs>";
+    public int delete() throws SQLException {
+        String query = "delete from <tables> where <cond>";
 
-            String SQL = query.replaceAll("<tables>", getTable()).replaceAll("<columns>", getColumns()).replaceAll("<valeurs>", getValues());
-            PreparedStatement pStmt = this.getConnection().prepareCall(SQL, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+        String SQL = query.replaceAll("<tables>", getTable()).replaceAll("<cond>",getCondition());
+        PreparedStatement pStmt = this.getConnection().prepareStatement(SQL, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+        System.out.println("Requête : "+SQL);
 
-            return pStmt.executeUpdate();
+        return pStmt.executeUpdate();
+    }
+
+    public ResultSet RequestLROOMS(String date) throws SQLException {
+        return null;
+    }
+
+    public ResultSet RequestBROOM(String categorie, String typeChambre, String dateDeb, String dateFin) throws SQLException {
+        return null;
+    }
+
+    public int Insert() throws SQLException
+    {
+        String query = "Insert into <tables> ";
+
+        if(!this.getColumns().equals("")) {
+            query = query + "(<columns>) ";
         }
-    */
+
+        query = query + "values <valeurs>";
+
+        String SQL = query.replaceAll("<tables>", getTable()).replaceAll("<columns>", getColumns()).replaceAll("<valeurs>", getValues());
+        PreparedStatement pStmt = this.getConnection().prepareCall(SQL, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+
+        return pStmt.executeUpdate();
+    }
+
     public void closeStatement() throws SQLException {
         this.MyStatement.close();
     }
