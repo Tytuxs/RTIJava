@@ -1,16 +1,16 @@
 package Windows;
 
+import Classe.Utilisateur;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 
-public class App_ConnexionClient extends JDialog {
+public class App_ConnexionClient extends JDialog{
     private JPanel ClientPanel;
     private JButton buttonConnexion;
     private JButton buttonQuitter;
@@ -23,23 +23,26 @@ public class App_ConnexionClient extends JDialog {
         InetAddress ip = InetAddress.getByName("localhost");
 
         Socket s = new Socket(ip, 5056);
-
-        DataInputStream dis = new DataInputStream(s.getInputStream());
-        DataOutputStream dos = new DataOutputStream(s.getOutputStream());
+        System.out.println(s);
+        ObjectOutputStream oos = new ObjectOutputStream(s.getOutputStream());
+        ObjectInputStream ois = new ObjectInputStream(s.getInputStream());
+        Utilisateur utilisateur = new Utilisateur();
 
         buttonConnexion.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    dos.writeUTF("LOGIN");
-                    dos.writeUTF(textFieldUtilisateur.getText());
-                    dos.writeUTF(textFieldMotDePasse.getText());
+                    oos.writeObject("LOGIN");
+                    utilisateur.set_nomUser(textFieldUtilisateur.getText());
+                    utilisateur.set_password(textFieldMotDePasse.getText());
+                    oos.writeObject(utilisateur);
 
-                    String reponse = dis.readUTF();
+                    String reponse = (String) ois.readObject();
+                    System.out.println("reponse : ");
                     System.out.println("reponse = " + reponse);
                     if (reponse.equals("OK")) {
                         System.out.println("Connexion OK");
-                        App_ReservationClient app_reservation = new App_ReservationClient(s, dos, dis);
+                        App_ReservationClient app_reservation = new App_ReservationClient(s, oos, ois);
                         app_reservation.setVisible(true);
                         App_ConnexionClient.super.dispose();
                     }
@@ -48,7 +51,7 @@ public class App_ConnexionClient extends JDialog {
                     }
 
 
-                } catch (IOException ex) {
+                } catch (IOException | ClassNotFoundException ex) {
                     ex.printStackTrace();
                 }
             }
@@ -58,9 +61,9 @@ public class App_ConnexionClient extends JDialog {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    dos.writeUTF("Exit");
-                    dis.close();
-                    dos.close();
+                    oos.writeObject("Exit");
+                    ois.close();
+                    oos.close();
                     s.close();
                 } catch (IOException ex) {
                     ex.printStackTrace();

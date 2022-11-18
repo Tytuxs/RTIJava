@@ -1,6 +1,8 @@
 package Classe;
 
-public class Chambre {
+import java.io.Serializable;
+
+public class Chambre  implements Serializable {
 
     private int _numeroChambre;
     private char _equipement;

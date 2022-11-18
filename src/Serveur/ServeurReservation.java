@@ -1,8 +1,6 @@
 package Serveur;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Vector;
@@ -43,12 +41,14 @@ public class ServeurReservation extends Thread {
 
                 System.out.println("Nouveau client connecte : " + s);
 
-                DataInputStream dis = new DataInputStream(s.getInputStream());
-                DataOutputStream dos = new DataOutputStream(s.getOutputStream());
+                /*DataInputStream dis = new DataInputStream(s.getInputStream());
+                DataOutputStream dos = new DataOutputStream(s.getOutputStream());*/
+                ObjectInputStream ois = new ObjectInputStream(s.getInputStream());
+                ObjectOutputStream oos = new ObjectOutputStream(s.getOutputStream());
 
                 System.out.println("Assignement d'un thread pour ce client");
 
-                ClientHandlerReservation ch = new ClientHandlerReservation(s, dis, dos);
+                ClientHandlerReservation ch = new ClientHandlerReservation(s, ois, oos);
                 Thread t = new Thread(ch);
 
                 VCHR.add(ch);

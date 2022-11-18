@@ -1,6 +1,8 @@
 package Classe;
 
-public class Groupe {
+import java.io.Serializable;
+
+public class Groupe implements Serializable {
 
     private char _adresse;
     private char _codePostal;

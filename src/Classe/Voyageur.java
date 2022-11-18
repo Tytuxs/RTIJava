@@ -1,6 +1,8 @@
 package Classe;
 
-public class Voyageur {
+import java.io.Serializable;
+
+public class Voyageur implements Serializable {
     private int _numeroClient;
     public int get_numeroClient() {
         return _numeroClient;

@@ -5,9 +5,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
 import java.util.StringTokenizer;
 import java.util.Vector;
@@ -20,14 +18,15 @@ public class App_LROOMS extends JDialog {
 
     DefaultTableModel JTable_Affichage = new DefaultTableModel();
 
-    public App_LROOMS(Socket s, DataOutputStream dos, DataInputStream dis) throws IOException {
+    /*public App_LROOMS(Socket s, DataOutputStream dos, DataInputStream dis) throws IOException {
 
         dos.writeUTF("LROOMS");
         JTable_Affichage.setRowCount(0);
-        JTable_Affichage.setColumnCount(2);
+        JTable_Affichage.setColumnCount(3);
         Vector V = new Vector<>();
         V.add("Numero Chambre");
         V.add("Nom du Client");
+        V.add("Date d'arrivée");
         JTable_Affichage.addRow(V);
 
         String message = dis.readUTF();
@@ -40,9 +39,11 @@ public class App_LROOMS extends JDialog {
             StringTokenizer st = new StringTokenizer(message, ";");
             String numChambre = st.nextToken();
             String nomClient = st.nextToken();
+            String datedeb = st.nextToken();
             Vector v = new Vector();
             v.add(numChambre);
             v.add(nomClient);
+            v.add(datedeb);
             JTable_Affichage.addRow(v);
         }
 
@@ -56,6 +57,50 @@ public class App_LROOMS extends JDialog {
             }
         });
         
+        this.setMinimumSize(new Dimension(1500, 600));
+        this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        this.setContentPane(LROOMSPanel);
+        this.pack();
+    }*/
+
+    public App_LROOMS(Socket s, ObjectOutputStream dos, ObjectInputStream dis) throws IOException, ClassNotFoundException {
+
+        dos.writeObject("LROOMS");
+        JTable_Affichage.setRowCount(0);
+        JTable_Affichage.setColumnCount(3);
+        Vector V = new Vector<>();
+        V.add("Numero Chambre");
+        V.add("Nom du Client");
+        V.add("Date d'arrivée");
+        JTable_Affichage.addRow(V);
+
+        String message;
+        //LECTURE DES MESSAGES RECUS ET BOUCLE JUSQU'AU MESSAGE "FIN"
+        while (true) {
+            message = (String) dis.readObject();
+            if(message.equals("FIN"))
+                break;
+            System.out.println(message);
+            StringTokenizer st = new StringTokenizer(message, ";");
+            String numChambre = st.nextToken();
+            String nomClient = st.nextToken();
+            String datedeb = st.nextToken();
+            Vector v = new Vector();
+            v.add(numChambre);
+            v.add(nomClient);
+            v.add(datedeb);
+            JTable_Affichage.addRow(v);
+        }
+
+        table1.setModel(JTable_Affichage);
+
+        buttonQuitter.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                App_LROOMS.super.dispose();
+            }
+        });
+
         this.setMinimumSize(new Dimension(1500, 600));
         this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         this.setContentPane(LROOMSPanel);

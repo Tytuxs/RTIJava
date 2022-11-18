@@ -1,11 +1,10 @@
 package Serveur;
 
+import Classe.Utilisateur;
 import database.facility.BD_Bean;
 import database.facility.BeanReservation;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -18,15 +17,15 @@ import java.util.StringTokenizer;
 public class ClientHandlerReservation extends Thread {
 
     final Socket s;
-    final DataOutputStream dos;
-    final DataInputStream dis;
+    final ObjectInputStream ois;
+    final ObjectOutputStream oos;
     BD_Bean BR;
 
     // Constructor
-    public ClientHandlerReservation(Socket s, DataInputStream dis, DataOutputStream dos) throws SQLException {
+    public ClientHandlerReservation(Socket s, ObjectInputStream ois, ObjectOutputStream oos) throws SQLException {
         this.s = s;
-        this.dis = dis;
-        this.dos = dos;
+        this.ois = ois;
+        this.oos = oos;
         BR = new BeanReservation("jdbc:mysql://localhost:3306/bd_holidays","root","pwdmysql");
     }
 
@@ -41,7 +40,7 @@ public class ClientHandlerReservation extends Thread {
             try {
 
                 // // RECEPTION DE LA REPONSE DU CLIENT
-                received = dis.readUTF();
+                received = (String) ois.readObject();
 
                 if(received.equals("Exit"))
                 {
@@ -52,27 +51,28 @@ public class ClientHandlerReservation extends Thread {
                 }
 
                 if(received.equals("LOGIN")) {
-                    String user = dis.readUTF();
+                    Utilisateur user = (Utilisateur) ois.readObject();
+                    /*String user = dis.readUTF();
                     String password = dis.readUTF();
                     System.out.println("user = " + user);
-                    System.out.println("password = " + password);
+                    System.out.println("password = " + password);*/
 
                     ResultSet rs = this.BR.Login();
 
-                    System.out.println("resultat");
                     int ok = 0;
                     while (rs.next()) {
                         String userbd = rs.getString(2);
                         String pwdbd = rs.getString(3);
 
-                        if(user.equals(userbd) && password.equals(pwdbd)) {
+                        if(user.get_nomUser().equals(userbd) && user.get_password().equals(pwdbd)) {
+                            System.out.println("Client trouve");
                             ok = 1;
                             break;
                         }
                     }
 
                     if(ok == 1) {
-                        dos.writeUTF("OK");
+                        oos.writeObject("OK");
 
                         int continuer = 1;
                         while (continuer == 1) {
@@ -83,17 +83,17 @@ public class ClientHandlerReservation extends Thread {
 
                             System.out.println("Boucle continuer");
                             //ATTENTE DE LA REQUÊTE
-                            String requete = dis.readUTF();
+                            String requete = (String) ois.readObject();
                             System.out.println("Requete recue : " + requete);
                             switch (requete) {
 
                                 case "BROOM" :
                                     //recuperation des differents champs demandes
-                                    String categorie = dis.readUTF();
-                                    String typeChambre = dis.readUTF();
-                                    String nbNuits = dis.readUTF();
-                                    String date = dis.readUTF();
-                                    String nom = dis.readUTF();
+                                    String categorie = (String) ois.readObject();
+                                    String typeChambre = (String) ois.readObject();
+                                    String nbNuits = (String) ois.readObject();
+                                    String date = (String) ois.readObject();
+                                    String nom = (String) ois.readObject();
 
                                     //Creation de la date de fin grace a date et nbNuits
                                     SimpleDateFormat temp = new SimpleDateFormat("yyyy-MM-dd");
@@ -108,12 +108,12 @@ public class ClientHandlerReservation extends Thread {
                                     while (resultatBROOM.next()) {
                                         String message = resultatBROOM.getString("numeroChambre") + ";" + resultatBROOM.getString("PrixHTVA") + ";";
                                         System.out.println("message envoye = " + message);
-                                        dos.writeUTF(message);
+                                        oos.writeObject(message);
                                     }
-                                    dos.writeUTF("FIN");
+                                    oos.writeObject("FIN");
 
                                     //ATTENTE DU CHOIX DU CLIENT POUR LA CHAMBRE
-                                    String retour = dis.readUTF();
+                                    String retour = (String) ois.readObject();
                                     StringTokenizer st = new StringTokenizer(retour,";");
                                     String choix = st.nextToken();
 
@@ -137,10 +137,10 @@ public class ClientHandlerReservation extends Thread {
                                         int confirmation = BR.Insert();
 
                                         if(confirmation == 1) {
-                                            dos.writeUTF("OK");
+                                            oos.writeObject("OK");
                                         }
                                         else {
-                                            dos.writeUTF("NOK");
+                                            oos.writeObject("NOK");
                                         }
                                     }
 
@@ -148,7 +148,7 @@ public class ClientHandlerReservation extends Thread {
 
                                 case "PROOM" :
                                     //RECUPERATION DU NOM DU CLIENT
-                                    String nomClient = dis.readUTF();
+                                    String nomClient = (String) ois.readObject();
                                     //INITIALISATION DES VALEURS POUR RECHERCHER DANS LA BD LES RESERVATIONS DU CLIENTS
                                     BR.setTable("ReserActCha");
                                     BR.setCondition("PersRef = '" + nomClient + "' and " + "type = 'Chambre'");
@@ -162,30 +162,30 @@ public class ClientHandlerReservation extends Thread {
                                                 + resultatPROOM.getString("PersRef") + ";"
                                                 + resultatPROOM.getString("paye");
                                         System.out.println("message envoye = " + message);
-                                        dos.writeUTF(message);
+                                        oos.writeObject(message);
                                     }
-                                    dos.writeUTF("FIN");
+                                    oos.writeObject("FIN");
                                     //ATTENTE DU CLIENT POUR PAYER
-                                    String paye = dis.readUTF();
+                                    String paye = (String) ois.readObject();
                                     if(paye.equals("OK")) {
                                         System.out.println("IciOK");
-                                        String id = dis.readUTF();
+                                        String id = (String) ois.readObject();
                                         BR.setTable("ReserActCha");
                                         BR.setCondition("id = " + id);
                                         BR.setValues("paye = true");
                                         int confirmation = BR.Update();
                                         if(confirmation==1) {
-                                            dos.writeUTF("OK");
+                                            oos.writeObject("OK");
                                         }
                                         else {
-                                            dos.writeUTF("NOK");
+                                            oos.writeObject("NOK");
                                         }
                                     }
                                     break;
 
                                 case "CROOM" :
                                     //RECUPERATION DE L'ID DE LA RESERVATION
-                                    String id = dis.readUTF();
+                                    String id = (String) ois.readObject();
                                     //INITIALISATION DES VALEURS POUR RECHERCHER DANS LA BD LES RESERVATIONS DU CLIENTS
                                     BR.setTable("ReserActCha");
                                     BR.setCondition("id = " + id);
@@ -193,10 +193,10 @@ public class ClientHandlerReservation extends Thread {
                                     int confirmation = BR.delete();
                                     System.out.println("confirmation delete = " + confirmation);
                                     if(confirmation==1) {
-                                        dos.writeUTF("OK");
+                                        oos.writeObject("OK");
                                     }
                                     else {
-                                        dos.writeUTF("NOK");
+                                        oos.writeObject("NOK");
                                     }
                                     break;
 
@@ -212,36 +212,37 @@ public class ClientHandlerReservation extends Thread {
 
                                     //CREATION DU MESSAGE SOUS FORME DE STRING A ENVOYER AU CLIENT
                                     while (resultat.next()) {
-                                        String message = resultat.getString("numChambre") + ";" + resultat.getString("PersRef") + ";";
+                                        String message = resultat.getString("numChambre") + ";" + resultat.getString("PersRef") + ";"
+                                                + resultat.getString("dateDeb") + ";";
                                         System.out.println("message envoye = " + message);
-                                        dos.writeUTF(message);
+                                        oos.writeObject(message);
                                     }
-                                    dos.writeUTF("FIN");
+                                    oos.writeObject("FIN");
                                     break;
 
                                 case "LOGOUT" :
-                                    dos.writeUTF("Au revoir");
+                                    oos.writeObject("Au revoir");
                                     continuer = 0;
                                     break;
 
                                 case "Exit" :
-                                    dos.writeUTF("Au revoir");
+                                    oos.writeObject("Au revoir");
                                     continuer = 0;
                                     connexion = 0;
                                     break;
 
                                 default:
-                                    dos.writeUTF("ERROR : Invalid input");
+                                    oos.writeObject("ERROR : Invalid input");
                                     break;
                             }
                         }
                     }
                     else {
                         System.out.println("NOK");
-                        dos.writeUTF("NOK");
+                        oos.writeObject("NOK");
                     }
                 }
-            } catch (IOException | SQLException | ParseException e) {
+            } catch (IOException | SQLException | ClassNotFoundException | ParseException e) {
                 e.printStackTrace();
             }
         }
@@ -250,8 +251,8 @@ public class ClientHandlerReservation extends Thread {
         {
             System.out.println("Fermeture des ressources");
             this.s.close();
-            this.dis.close();
-            this.dos.close();
+            this.ois.close();
+            this.oos.close();
 
         }catch(IOException e){
             e.printStackTrace();

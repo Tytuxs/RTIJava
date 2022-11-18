@@ -1,6 +1,8 @@
 package Classe;
 
-public class Activite {
+import java.io.Serializable;
+
+public class Activite  implements Serializable {
     private int _id;
     private char type;
     private int _nombreMaxParticipants;

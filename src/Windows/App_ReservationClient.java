@@ -4,9 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
 
 public class App_ReservationClient extends JDialog {
@@ -17,12 +15,11 @@ public class App_ReservationClient extends JDialog {
     private JButton buttonLROOMS;
     private JButton buttonQuitter;
 
-    public App_ReservationClient(Socket s, DataOutputStream dos, DataInputStream dis) throws IOException{
+    /*public App_ReservationClient(Socket s, DataOutputStream dos, DataInputStream dis) throws IOException{
 
             buttonBROOM.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-
                     App_BROOM app_broom = new App_BROOM(s,dos,dis);
                     app_broom.setVisible(true);
                 }
@@ -31,78 +28,29 @@ public class App_ReservationClient extends JDialog {
             buttonPROOM.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-
-/*
-                    //REQUETE PROOM
-                    dos.writeUTF("PROOM");
-                    System.out.println("Nom du client referent : ");
-                    String nomClient = scn.nextLine();
-                    dos.writeUTF(nomClient);
-
-                    //LECTURE DES MESSAGES RECUS ET BOUCLE JUSQU'AU MESSAGE "FIN"
-                    while (true) {
-                        message = dis.readUTF();
-                        if(message.equals("FIN"))
-                            break;
-                        else {
-                            StringTokenizer st = new StringTokenizer(message,";");
-                            while (st.hasMoreTokens()) {
-                                System.out.println("id de la reservation : " + st.nextToken());
-                                System.out.println("numero de la chambre : " + st.nextToken());
-                                System.out.println("prix de la chambre : " + st.nextToken());
-                                System.out.println("Personne referent : " + st.nextToken());
-                                System.out.println("paye : " + st.nextToken());
-                            }
-                        }
-                    }
-
-                    //DEMANDE AU CLIENT DE PAYER UNE DE LEUR RESERVATION
-                    System.out.println("Voulez-vous payer ?\n1)Oui\n2)Non");
-                    String paye = scn.nextLine();
-
-                    if(paye.equals("Oui") || paye.equals("1")) {
-                        dos.writeUTF("OK");
-                        System.out.println("id de la reservation : ");
-                        String id = scn.nextLine();
-                        dos.writeUTF(id);
-                        String confirmation = dis.readUTF();
-                        if (confirmation.equals("OK")) {
-                            System.out.println("Paiement Accepte");
-                        } else {
-                            System.out.println("Erreur paiement");
-                        }
-                    }
-                    else {
-                        dos.writeUTF("NOK");
-                    }
- */
+                    App_PROOM app_proom = new App_PROOM(s,dos,dis);
+                    app_proom.setVisible(true);
                 }
             });
 
             buttonCROOM.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                /*    //REQUETE CROOM
-                    dos.writeUTF("CROOM");
-                    //DEMANDE AU CLIENT L'ID POUR SUPPRIMER LA RESEVATION CORRESPONDANTE
-                    System.out.println("id de la reservation : ");
-                    String id = scn.nextLine();
-                    dos.writeUTF(id);
-                    System.out.println("message retour delete : " + dis.readUTF());
-*/
+                    App_CROOM app_croom = new App_CROOM(s,dos,dis);
+                    app_croom.setVisible(true);
                 }
             });
 
             buttonLROOMS.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    App_LROOMS app_broom = null;
+                    App_LROOMS app_lrooms = null;
                     try {
-                        app_broom = new App_LROOMS(s,dos,dis);
+                        app_lrooms = new App_LROOMS(s,dos,dis);
                     } catch (IOException ex) {
                         ex.printStackTrace();
                     }
-                    app_broom.setVisible(true);
+                    app_lrooms.setVisible(true);
                 }
             });
 
@@ -126,6 +74,68 @@ public class App_ReservationClient extends JDialog {
     this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
     this.setContentPane(panelReservation);
     this.pack();
+    }*/
+
+    public App_ReservationClient(Socket s, ObjectOutputStream oos, ObjectInputStream ois) throws IOException{
+
+        buttonBROOM.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                App_BROOM app_broom = new App_BROOM(s,oos,ois);
+                app_broom.setVisible(true);
+            }
+        });
+
+        buttonPROOM.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                App_PROOM app_proom = new App_PROOM(s,oos,ois);
+                app_proom.setVisible(true);
+            }
+        });
+
+        buttonCROOM.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                App_CROOM app_croom = new App_CROOM(s,oos,ois);
+                app_croom.setVisible(true);
+            }
+        });
+
+        buttonLROOMS.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                App_LROOMS app_lrooms = null;
+                try {
+                    app_lrooms = new App_LROOMS(s,oos,ois);
+                } catch (IOException | ClassNotFoundException ex) {
+                    ex.printStackTrace();
+                }
+                app_lrooms.setVisible(true);
+            }
+        });
+
+        buttonQuitter.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // closing resources
+
+                try {
+                    oos.writeObject("Exit");
+                    s.close();
+                    ois.close();
+                    oos.close();
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+                App_ReservationClient.super.dispose();
+            }
+        });
+        this.setMinimumSize(new Dimension(600,600));
+        this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        this.setContentPane(panelReservation);
+        this.pack();
     }
 
 
