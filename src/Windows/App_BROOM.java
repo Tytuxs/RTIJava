@@ -138,7 +138,7 @@ public class App_BROOM extends JDialog{
                     try {
                         oos.writeObject("BROOM");
                         //DEMANDE DES INFOS AU CLIENT
-                        ReserActCha reservationChambre = null;
+                        ReserActCha reservationChambre = new ReserActCha();
                         reservationChambre.set_categorie(comboBoxCategorie.getSelectedItem().toString());
                         reservationChambre.set_typeCha(comboBoxTypeChambre.getSelectedItem().toString());
                         reservationChambre.set_nbNuits(Integer.parseInt(textFieldNbNuits.getText()));
@@ -183,7 +183,7 @@ public class App_BROOM extends JDialog{
                 //DEMANDE AU CLIENT LA CHAMBRE QU'IL SOUHAITE ET AUSSI LE PRIX CAR PAS ENREGISTRE TANT QUE PAS D'INTERFACE
                 try {
                     if (tableAffichage.getSelectedRow() != -1) {
-                        Chambre chambre = null;
+                        Chambre chambre = new Chambre();
                         chambre.set_numeroChambre((Integer) tableAffichage.getValueAt(tableAffichage.getSelectedRow(), 0));
                         chambre.set_prixHTVA((Float) tableAffichage.getValueAt(tableAffichage.getSelectedRow(), 1));
                         oos.writeObject(chambre);

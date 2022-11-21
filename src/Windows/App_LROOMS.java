@@ -1,5 +1,7 @@
 package Windows;
 
+import Classe.ReserActCha;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -67,28 +69,33 @@ public class App_LROOMS extends JDialog {
 
         dos.writeObject("LROOMS");
         JTable_Affichage.setRowCount(0);
-        JTable_Affichage.setColumnCount(3);
+        JTable_Affichage.setColumnCount(5);
         Vector V = new Vector<>();
+        V.add("id Réservation");
         V.add("Numero Chambre");
         V.add("Nom du Client");
         V.add("Date d'arrivée");
+        V.add("paye ?");
         JTable_Affichage.addRow(V);
 
-        String message;
+        ReserActCha reservation;
         //LECTURE DES MESSAGES RECUS ET BOUCLE JUSQU'AU MESSAGE "FIN"
         while (true) {
-            message = (String) dis.readObject();
-            if(message.equals("FIN"))
+            reservation = (ReserActCha) dis.readObject();
+            if(reservation==null)
                 break;
-            System.out.println(message);
-            StringTokenizer st = new StringTokenizer(message, ";");
-            String numChambre = st.nextToken();
-            String nomClient = st.nextToken();
-            String datedeb = st.nextToken();
             Vector v = new Vector();
-            v.add(numChambre);
-            v.add(nomClient);
-            v.add(datedeb);
+            v.add(reservation.get_id());
+            v.add(reservation.get_numChambre());
+            v.add(reservation.get_persRef());
+            v.add(reservation.get_date());
+            boolean paye = reservation.is_paye();
+            if(!paye) {
+                v.add("Non");
+            }
+            else {
+                v.add("Oui");
+            }
             JTable_Affichage.addRow(v);
         }
 

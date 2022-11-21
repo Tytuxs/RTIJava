@@ -1,6 +1,8 @@
 package Classe;
 
-public class ReserActCha {
+import java.io.Serializable;
+
+public class ReserActCha implements Serializable {
     private int _id;
     private String _persRef;
     private String _type;

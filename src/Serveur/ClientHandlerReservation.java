@@ -113,7 +113,7 @@ public class ClientHandlerReservation extends Thread {
                                     ResultSet resultatBROOM = BR.RequestBROOM(reservationChambre.get_categorie(),reservationChambre.get_typeCha(), reservationChambre.get_date(), dateFin);
                                     //CREATION DU MESSAGE SOUS FORME DE STRING A ENVOYER AU CLIENT
                                     while (resultatBROOM.next()) {
-                                        Chambre chambre = null;
+                                        Chambre chambre = new Chambre();
                                         chambre.set_numeroChambre(Integer.parseInt(resultatBROOM.getString("numeroChambre")));
                                         chambre.set_prixHTVA(Float.parseFloat(resultatBROOM.getString("PrixHTVA")));
                                         System.out.println("chambre envoye = " + chambre);
@@ -126,13 +126,13 @@ public class ClientHandlerReservation extends Thread {
 
                                     if(retour.equals("OK")) {
                                         Chambre chambreAResa = (Chambre) ois.readObject();
-                                        if(chambreAResa.get_typeChambre().equals("Simple")) {
+                                        if(reservationChambre.get_typeCha().equals("Simple")) {
                                             reservationChambre.set_nbMaxCha(1);
                                         }
-                                        if(chambreAResa.get_typeChambre().equals("Double")) {
+                                        if(reservationChambre.get_typeCha().equals("Double")) {
                                             reservationChambre.set_nbMaxCha(2);
                                         }
-                                        if(chambreAResa.get_typeChambre().equals("Familiale")) {
+                                        if(reservationChambre.get_typeCha().equals("Familiale")) {
                                             reservationChambre.set_nbMaxCha(4);
                                         }
                                         //INITIALISATION DES VALEURS A METTRE DANS LA BD
@@ -170,15 +170,16 @@ public class ClientHandlerReservation extends Thread {
                                     ResultSet resultatPROOM = BR.Select(false);
                                     //CREATION DU MESSAGE SOUS FORME DE STRING A ENVOYER AU CLIENT
                                     while (resultatPROOM.next()) {
-                                        String message = resultatPROOM.getString("id") + ";"
-                                                + resultatPROOM.getString("numChambre") + ";"
-                                                + resultatPROOM.getString("prixCha") + ";"
-                                                + resultatPROOM.getString("PersRef") + ";"
-                                                + resultatPROOM.getString("paye");
-                                        System.out.println("message envoye = " + message);
-                                        oos.writeObject(message);
+                                        ReserActCha reservation = new ReserActCha();
+                                        reservation.set_id(resultatPROOM.getInt("id"));
+                                        reservation.set_numChambre(resultatPROOM.getInt("numChambre"));
+                                        reservation.set_prixCha(resultatPROOM.getFloat("prixCha"));
+                                        reservation.set_persRef(resultatPROOM.getString("PersRef"));
+                                        reservation.set_paye(resultatPROOM.getBoolean("paye"));
+
+                                        oos.writeObject(reservation);
                                     }
-                                    oos.writeObject("FIN");
+                                    oos.writeObject(null);
                                     //ATTENTE DU CLIENT POUR PAYER
                                     String paye = (String) ois.readObject();
                                     if(paye.equals("OK")) {
@@ -226,12 +227,16 @@ public class ClientHandlerReservation extends Thread {
 
                                     //CREATION DU MESSAGE SOUS FORME DE STRING A ENVOYER AU CLIENT
                                     while (resultat.next()) {
-                                        String message = resultat.getString("numChambre") + ";" + resultat.getString("PersRef") + ";"
-                                                + resultat.getString("dateDeb") + ";";
-                                        System.out.println("message envoye = " + message);
-                                        oos.writeObject(message);
+                                        ReserActCha reservation = new ReserActCha();
+                                        reservation.set_id(resultat.getInt("id"));
+                                        reservation.set_numChambre(resultat.getInt("numChambre"));
+                                        reservation.set_persRef(resultat.getString("PersRef"));
+                                        reservation.set_date(resultat.getString("dateDeb"));
+                                        reservation.set_paye(resultat.getBoolean("paye"));
+
+                                        oos.writeObject(reservation);
                                     }
-                                    oos.writeObject("FIN");
+                                    oos.writeObject(null);
                                     break;
 
                                 case "LOGOUT" :
