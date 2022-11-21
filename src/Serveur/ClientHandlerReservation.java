@@ -1,5 +1,7 @@
 package Serveur;
 
+import Classe.Chambre;
+import Classe.ReserActCha;
 import Classe.SourceTaches;
 import Classe.Utilisateur;
 import database.facility.BD_Bean;
@@ -14,7 +16,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.StringTokenizer;
 
 public class ClientHandlerReservation extends Thread {
 
@@ -99,50 +100,53 @@ public class ClientHandlerReservation extends Thread {
 
                                 case "BROOM" :
                                     //recuperation des differents champs demandes
-                                    String categorie = (String) ois.readObject();
-                                    String typeChambre = (String) ois.readObject();
-                                    String nbNuits = (String) ois.readObject();
-                                    String date = (String) ois.readObject();
-                                    String nom = (String) ois.readObject();
+                                    ReserActCha reservationChambre = (ReserActCha) ois.readObject();
 
                                     //Creation de la date de fin grace a date et nbNuits
                                     SimpleDateFormat temp = new SimpleDateFormat("yyyy-MM-dd");
                                     Calendar c = Calendar.getInstance();
-                                    c.setTime(temp.parse(date));
-                                    c.add(Calendar.DATE,Integer.parseInt(nbNuits) - 1);
+                                    c.setTime(temp.parse(reservationChambre.get_date()));
+                                    c.add(Calendar.DATE,reservationChambre.get_nbNuits() - 1);
                                     String dateFin=temp.format(c.getTime());
 
                                     //REQUETE A LA BD
-                                    ResultSet resultatBROOM = BR.RequestBROOM(categorie,typeChambre,date,dateFin);
+                                    ResultSet resultatBROOM = BR.RequestBROOM(reservationChambre.get_categorie(),reservationChambre.get_typeCha(), reservationChambre.get_date(), dateFin);
                                     //CREATION DU MESSAGE SOUS FORME DE STRING A ENVOYER AU CLIENT
                                     while (resultatBROOM.next()) {
-                                        String message = resultatBROOM.getString("numeroChambre") + ";" + resultatBROOM.getString("PrixHTVA") + ";";
-                                        System.out.println("message envoye = " + message);
-                                        oos.writeObject(message);
+                                        Chambre chambre = null;
+                                        chambre.set_numeroChambre(Integer.parseInt(resultatBROOM.getString("numeroChambre")));
+                                        chambre.set_prixHTVA(Float.parseFloat(resultatBROOM.getString("PrixHTVA")));
+                                        System.out.println("chambre envoye = " + chambre);
+                                        oos.writeObject(chambre);
                                     }
-                                    oos.writeObject("FIN");
+                                    oos.writeObject(null);
 
                                     //ATTENTE DU CHOIX DU CLIENT POUR LA CHAMBRE
                                     String retour = (String) ois.readObject();
-                                    StringTokenizer st = new StringTokenizer(retour,";");
-                                    String choix = st.nextToken();
 
-                                    if(!choix.equals("Aucune")) {
-                                        String prix = st.nextToken();
-                                        int nbMaxCha = 0;
-                                        if(typeChambre.equals("Simple")) {
-                                            nbMaxCha=1;
+                                    if(retour.equals("OK")) {
+                                        Chambre chambreAResa = (Chambre) ois.readObject();
+                                        if(chambreAResa.get_typeChambre().equals("Simple")) {
+                                            reservationChambre.set_nbMaxCha(1);
                                         }
-                                        if(typeChambre.equals("Double")) {
-                                            nbMaxCha=2;
+                                        if(chambreAResa.get_typeChambre().equals("Double")) {
+                                            reservationChambre.set_nbMaxCha(2);
                                         }
-                                        if(typeChambre.equals("Familiale")) {
-                                            nbMaxCha=4;
+                                        if(chambreAResa.get_typeChambre().equals("Familiale")) {
+                                            reservationChambre.set_nbMaxCha(4);
                                         }
                                         //INITIALISATION DES VALEURS A METTRE DANS LA BD
                                         BR.setTable("reseractcha");
                                         BR.setColumns("`PersRef`,`type`,`numChambre`,`typeCha`,`nbMaxCha`,`nbNuit`,`dateDeb`,`prixCha`,`paye`");
-                                        BR.setValues("'"+nom+"'"+","+"'Chambre'"+","+choix+","+"'"+typeChambre+"'"+","+nbMaxCha+","+Integer.parseInt(nbNuits)+","+"'"+date+"'"+","+prix+","+false);
+                                        BR.setValues("'"+reservationChambre.get_persRef()+"'"+","
+                                                +"'Chambre'"+","
+                                                +chambreAResa.get_numeroChambre()+","+"'"
+                                                +reservationChambre.get_typeCha()+"'"+","
+                                                +reservationChambre.get_nbMaxCha()+","
+                                                +reservationChambre.get_nbNuits()+","+"'"
+                                                +reservationChambre.get_date()+"'"+","
+                                                +chambreAResa.get_prixHTVA()+","
+                                                +false);
                                         //AJOUT A LA BD
                                         int confirmation = BR.Insert();
 

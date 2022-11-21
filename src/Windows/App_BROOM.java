@@ -1,5 +1,8 @@
 package Windows;
 
+import Classe.Chambre;
+import Classe.ReserActCha;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -135,36 +138,35 @@ public class App_BROOM extends JDialog{
                     try {
                         oos.writeObject("BROOM");
                         //DEMANDE DES INFOS AU CLIENT
-                        String categorie = comboBoxCategorie.getSelectedItem().toString();
-                        String typeChambre = comboBoxTypeChambre.getSelectedItem().toString();
-                        String nbNuits = textFieldNbNuits.getText();
-                        String date = textFieldDateArrivee.getText();
-                        String nom = textFieldNomClient.getText();
+                        ReserActCha reservationChambre = null;
+                        reservationChambre.set_categorie(comboBoxCategorie.getSelectedItem().toString());
+                        reservationChambre.set_typeCha(comboBoxTypeChambre.getSelectedItem().toString());
+                        reservationChambre.set_nbNuits(Integer.parseInt(textFieldNbNuits.getText()));
+                        reservationChambre.set_date(textFieldDateArrivee.getText());
+                        reservationChambre.set_persRef(textFieldNomClient.getText());
                         //ENVOI DES INFOS AU SERVEUR SOUS FORME DE STRING
-                        oos.writeObject(categorie);
-                        oos.writeObject(typeChambre);
-                        oos.writeObject(nbNuits);
-                        oos.writeObject(date);
-                        oos.writeObject(nom);
+                        oos.writeObject(reservationChambre);
 
                         //LECTURE DES MESSAGES RECUS ET BOUCLE JUSQU'AU MESSAGE "FIN"
-                        String message;
+                        Chambre chambre;
                         int compteur = 0;//sert a savoir si on a au moins un resultat
                         while (true) {
-                            message = (String) ois.readObject();
-                            if (message.equals("FIN"))
+                            chambre = (Chambre) ois.readObject();
+                            if (chambre == null)
                                 break;
                             else {
-                                StringTokenizer st = new StringTokenizer(message, ";");
                                 Vector v = new Vector();
-                                v.add(st.nextToken());
-                                v.add(st.nextToken());
+                                v.add(chambre.get_numeroChambre());
+                                v.add(chambre.get_prixHTVA());
                                 JTable_Affichage.addRow(v);
                                 compteur++;
                             }
                         }
                         if(compteur == 0) {
                             oos.writeObject("Aucune");
+                        }
+                        else {
+                            oos.writeObject("OK");
                         }
                     } catch (IOException | ClassNotFoundException ex) {
                         ex.printStackTrace();
@@ -181,10 +183,10 @@ public class App_BROOM extends JDialog{
                 //DEMANDE AU CLIENT LA CHAMBRE QU'IL SOUHAITE ET AUSSI LE PRIX CAR PAS ENREGISTRE TANT QUE PAS D'INTERFACE
                 try {
                     if (tableAffichage.getSelectedRow() != -1) {
-                        System.out.println("prix : ");
-                        String numChambre = (String) tableAffichage.getValueAt(tableAffichage.getSelectedRow(), 0);
-                        String prix = (String) tableAffichage.getValueAt(tableAffichage.getSelectedRow(), 1);
-                        oos.writeObject(numChambre + ";" + prix + ";");
+                        Chambre chambre = null;
+                        chambre.set_numeroChambre((Integer) tableAffichage.getValueAt(tableAffichage.getSelectedRow(), 0));
+                        chambre.set_prixHTVA((Float) tableAffichage.getValueAt(tableAffichage.getSelectedRow(), 1));
+                        oos.writeObject(chambre);
                         String confirmation = (String) ois.readObject();
 
                         if (confirmation.equals("OK")) {
