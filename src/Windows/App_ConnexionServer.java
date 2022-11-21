@@ -6,6 +6,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.SQLException;
 
 public class App_ConnexionServer extends JDialog{
     private JPanel serverPanel;
@@ -15,8 +16,7 @@ public class App_ConnexionServer extends JDialog{
     private ServeurReservation serveurResaChambre = new ServeurReservation(5056);
     private ServeurReservation serveurResaActi = new ServeurReservation(6000);
 
-    public App_ConnexionServer()
-    {
+    public App_ConnexionServer() throws SQLException {
         button_LancerServeur.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

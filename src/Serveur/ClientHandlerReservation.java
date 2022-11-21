@@ -1,10 +1,12 @@
 package Serveur;
 
+import Classe.SourceTaches;
 import Classe.Utilisateur;
 import database.facility.BD_Bean;
-import database.facility.BeanReservation;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -16,17 +18,23 @@ import java.util.StringTokenizer;
 
 public class ClientHandlerReservation extends Thread {
 
-    final Socket s;
-    final ObjectInputStream ois;
-    final ObjectOutputStream oos;
+    private SourceTaches tachesAExecuter;
+    private Socket tacheEnCours;
+    private ObjectInputStream ois;
+    private ObjectOutputStream oos;
     BD_Bean BR;
 
     // Constructor
-    public ClientHandlerReservation(Socket s, ObjectInputStream ois, ObjectOutputStream oos) throws SQLException {
+    /*public ClientHandlerReservation(Socket s, ObjectInputStream ois, ObjectOutputStream oos) throws SQLException {
         this.s = s;
         this.ois = ois;
         this.oos = oos;
         BR = new BeanReservation("jdbc:mysql://localhost:3306/bd_holidays","root","pwdmysql");
+    }*/
+
+    public ClientHandlerReservation(SourceTaches tachesAFaire, BD_Bean BR) {
+        this.tachesAExecuter = tachesAFaire;
+        this.BR = BR;
     }
 
     @Override
@@ -36,15 +44,21 @@ public class ClientHandlerReservation extends Thread {
         int connexion = 1;
         while (connexion == 1)
         {
+            try {
+                tacheEnCours = tachesAExecuter.getTache();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             System.out.println("Boucle connexion");
             try {
-
+                ois = new ObjectInputStream(tacheEnCours.getInputStream());
+                oos = new ObjectOutputStream(tacheEnCours.getOutputStream());
                 // // RECEPTION DE LA REPONSE DU CLIENT
                 received = (String) ois.readObject();
 
                 if(received.equals("Exit"))
                 {
-                    System.out.println("Client " + this.s + " sends exit...");
+                    System.out.println("Client " + this.tacheEnCours + " sends exit...");
                     System.out.println("Closing this connection.");
                     System.out.println("Connection closed");
                     connexion = 0;
@@ -52,10 +66,6 @@ public class ClientHandlerReservation extends Thread {
 
                 if(received.equals("LOGIN")) {
                     Utilisateur user = (Utilisateur) ois.readObject();
-                    /*String user = dis.readUTF();
-                    String password = dis.readUTF();
-                    System.out.println("user = " + user);
-                    System.out.println("password = " + password);*/
 
                     ResultSet rs = this.BR.Login();
 
@@ -250,7 +260,7 @@ public class ClientHandlerReservation extends Thread {
         try
         {
             System.out.println("Fermeture des ressources");
-            this.s.close();
+            this.tacheEnCours.close();
             this.ois.close();
             this.oos.close();
 

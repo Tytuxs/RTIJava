@@ -1,10 +1,9 @@
 package Serveur;
 
-import java.io.IOException;
+import java.sql.SQLException;
 
 public class MainServeur {
-    public static synchronized void main(String[] args) throws IOException
-    {
+    public static synchronized void main(String[] args) throws SQLException {
         ServeurReservation SC = new ServeurReservation(5056);
         ServeurActivite SR = new ServeurActivite(6000);
 

@@ -1,17 +1,25 @@
 package Serveur;
 
-import java.io.*;
+import Classe.TachesReservation;
+import database.facility.BD_Bean;
+import database.facility.BeanReservation;
+
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Vector;
+import java.sql.SQLException;
 
 public class ServeurReservation extends Thread {
 
-    static Vector<ClientHandlerReservation> VCHR = new Vector<>();//stocke les clients pour le moment, permettrait plus tard de limiter le nombre de client si on le souhaite
     private int PORT_CHAMBRE;
+    private TachesReservation tachesAFaire;
+    private ServerSocket SSocket = null;
+    private BD_Bean BR;
 
-    public ServeurReservation(int PORT) {
+    public ServeurReservation(int PORT) throws SQLException {
         setPort(PORT);
+        tachesAFaire = new TachesReservation();
+        BR = new BeanReservation("jdbc:mysql://localhost:3306/bd_holidays","root","pwdmysql");
     }
 
     public void setPort(int PORT) { this.PORT_CHAMBRE = PORT; }
@@ -26,6 +34,10 @@ public class ServeurReservation extends Thread {
         ServerSocket ss = null;
         try {
             ss = new ServerSocket(getPort());
+            for(int i=0; i<3;i++) {
+                ClientHandlerReservation ThrClient = new ClientHandlerReservation(tachesAFaire, BR);
+                ThrClient.start();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -38,22 +50,8 @@ public class ServeurReservation extends Thread {
             {
                 assert ss != null;
                 s = ss.accept();
-
+                tachesAFaire.recordTache(s);
                 System.out.println("Nouveau client connecte : " + s);
-
-                /*DataInputStream dis = new DataInputStream(s.getInputStream());
-                DataOutputStream dos = new DataOutputStream(s.getOutputStream());*/
-                ObjectInputStream ois = new ObjectInputStream(s.getInputStream());
-                ObjectOutputStream oos = new ObjectOutputStream(s.getOutputStream());
-
-                System.out.println("Assignement d'un thread pour ce client");
-
-                ClientHandlerReservation ch = new ClientHandlerReservation(s, ois, oos);
-                Thread t = new Thread(ch);
-
-                VCHR.add(ch);
-                t.start();
-
             }
             catch (Exception e){
                 try {
