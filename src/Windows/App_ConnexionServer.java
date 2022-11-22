@@ -1,5 +1,6 @@
 package Windows;
 
+import Serveur.ServeurActivite;
 import Serveur.ServeurReservation;
 
 import javax.swing.*;
@@ -14,18 +15,18 @@ public class App_ConnexionServer extends JDialog{
     private JButton annulerButton;
 
     private ServeurReservation serveurResaChambre = new ServeurReservation(5056);
-    private ServeurReservation serveurResaActi = new ServeurReservation(6000);
+    private ServeurActivite serveurResaActi = new ServeurActivite(6000);
 
     public App_ConnexionServer() throws SQLException {
         button_LancerServeur.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 Thread threadResaChambre = new Thread(serveurResaChambre);
-                System.out.println("Lancement du ServeurChambre avec un thread");
+                System.out.println("Lancement du ServeurReservation avec un thread");
                 threadResaChambre.start();
 
                 Thread threadResaActi = new Thread(serveurResaActi);
-                System.out.println("Lancement du ServeurReservation avec un thread");
+                System.out.println("Lancement du ServeurActivite avec un thread");
                 threadResaActi.start();
             }
         });

@@ -41,7 +41,7 @@ public class ClientActivite {
                     if (reponse.equals("OK")) {
                         int continuer = 1;
                         while (continuer == 1) {
-                            System.out.println("Que voulez-vous faire ?\n" + "1)SHACT\n" + "2)LGACT\n" + "3)LACT\n" + "4)DELACT\n" + "5)Deconnexion");
+                            System.out.println("Que voulez-vous faire ?\n" + "1)SHACT\n" + "2)LGACT\n" + "3)LISTACT\n" + "4)DELACT\n" + "5)Deconnexion");
                             String tosend = scn.nextLine();
                             dos.writeUTF(tosend);
 

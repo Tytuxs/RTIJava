@@ -13,7 +13,7 @@ public class TachesActivite implements SourceTaches{
 
     public synchronized Socket getTache() throws InterruptedException
     {
-        System.out.println("getTache avant wait");
+        System.out.println("ACTIVITE : getTache avant wait");
         while (!existTaches())
             wait();
         return (Socket) listeTaches.remove();
@@ -27,7 +27,7 @@ public class TachesActivite implements SourceTaches{
     public synchronized void recordTache(Socket s)
     {
         listeTaches.addLast(s);
-        System.out.println("ListeTaches : tache dans la file");
+        System.out.println("ACTIVITE : ListeTaches : tache dans la file");
         notify();
     }
 }

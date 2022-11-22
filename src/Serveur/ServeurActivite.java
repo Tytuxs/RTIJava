@@ -1,53 +1,58 @@
 package Serveur;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import Classe.TachesActivite;
+import database.facility.BD_Bean;
+import database.facility.BeanActivite;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Vector;
+import java.sql.SQLException;
 
 public class ServeurActivite extends Thread {
 
-    private int PORT_RESERVATION;
-    static Vector<ClientHandlerActivite> VCHA = new Vector<ClientHandlerActivite>();//stocke les clients pour le moment, permettrait plus tard de limiter le nombre de client si on le souhaite
+    private int PORT_ACTIVITE;
+    private final TachesActivite tachesAFaire;
+    private final BD_Bean BA;
 
-    public ServeurActivite(int PORT) {
+    public ServeurActivite(int PORT) throws SQLException {
         setPort(PORT);
+        tachesAFaire = new TachesActivite();
+        BA = new BeanActivite("jdbc:mysql://localhost:3306/bd_holidays","root","pwdmysql");
     }
 
-    public void setPort(int PORT) { this.PORT_RESERVATION = PORT; }
-    public int getPort() { return this.PORT_RESERVATION; }
+    public void setPort(int PORT) { this.PORT_ACTIVITE = PORT; }
+    public int getPort() { return this.PORT_ACTIVITE; }
 
     @Override
     public void run() {
         ServerSocket ss = null;
         try {
             ss = new ServerSocket(getPort());
+            for(int i=0; i<3; i++) {
+                ClientHandlerActivite ThrClient = new ClientHandlerActivite(tachesAFaire, BA);
+                ThrClient.start();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         while (true) {
-            Socket s;
+            Socket s = null;
 
             try {
                 assert ss != null;
                 s = ss.accept();
-
+                tachesAFaire.recordTache(s);
                 System.out.println("ACTIVITE : Nouveau client connecte : " + s);
 
-                DataInputStream dis = new DataInputStream(s.getInputStream());
-                DataOutputStream dos = new DataOutputStream(s.getOutputStream());
-
-                System.out.println("ACTIVITE : Assignement d'un thread pour ce client");
-
-                ClientHandlerActivite ch = new ClientHandlerActivite(s, dis, dos);
-                Thread t = new Thread(ch);
-
-                VCHA.add(ch);
-                t.start();
-            } catch (IOException e) {
+            } catch (Exception e) {
+                try {
+                    assert s != null;
+                    s.close();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
                 e.printStackTrace();
             }
         }

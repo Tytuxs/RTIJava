@@ -12,9 +12,8 @@ import java.sql.SQLException;
 public class ServeurReservation extends Thread {
 
     private int PORT_CHAMBRE;
-    private TachesReservation tachesAFaire;
-    private ServerSocket SSocket = null;
-    private BD_Bean BR;
+    private final TachesReservation tachesAFaire;
+    private final BD_Bean BR;
 
     public ServeurReservation(int PORT) throws SQLException {
         setPort(PORT);

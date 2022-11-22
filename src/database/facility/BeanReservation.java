@@ -13,11 +13,7 @@ public class BeanReservation extends BD_Bean {
 
     @Override
     public ResultSet Login() throws SQLException{
-        String query = "Select * from user";
-
-        PreparedStatement pStmt = this.getConnection().prepareStatement(query, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
-
-        return pStmt.executeQuery();
+        return super.Login();
     }
 
     @Override
@@ -95,13 +91,6 @@ public class BeanReservation extends BD_Bean {
         /*
          * Permet d'ajouter ce que le client a demander comme chambre
          */
-        String query = "Insert into <tables> ";
-        if(!this.getColumns().equals(""))
-            query = query + "(<columns>) ";
-        query = query + "values (<valeurs>);";
-        String SQL = query.replaceAll("<tables>", getTable()).replaceAll("<columns>", getColumns()).replaceAll("<valeurs>", getValues());
-        System.out.println("SQL = " + SQL);
-        PreparedStatement pStmt = this.getConnection().prepareCall(SQL, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
-        return pStmt.executeUpdate();
+        return super.Insert();
     }
 }

@@ -1,21 +1,31 @@
 package Serveur;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import Classe.*;
+import database.facility.BD_Bean;
+
+import java.io.*;
 import java.net.Socket;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class ClientHandlerActivite extends Thread {
 
-    final Socket s;
-    final DataOutputStream dos;
-    final DataInputStream dis;
+    private final SourceTaches tachesAExecuter;
+    private Socket tacheEnCours;
+    private ObjectInputStream ois;
+    private ObjectOutputStream oos;
+    BD_Bean BA;
 
-    public ClientHandlerActivite(Socket s, DataInputStream dis, DataOutputStream dos)
+    /*public ClientHandlerActivite(Socket s, DataInputStream ois, DataOutputStream oos)
     {
         this.s = s;
-        this.dis = dis;
-        this.dos = dos;
+        this.ois = ois;
+        this.oos = oos;
+    }*/
+
+    public ClientHandlerActivite(SourceTaches tachesAFaire, BD_Bean BA) {
+        this.tachesAExecuter = tachesAFaire;
+        this.BA = BA;
     }
 
     @Override
@@ -24,86 +34,216 @@ public class ClientHandlerActivite extends Thread {
         int connexion = 1;
         while (connexion == 1)
         {
+            try {
+                tacheEnCours = tachesAExecuter.getTache();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             System.out.println("ACTIVITE : Boucle connexion");
             try {
 
-                // receive the answer from client
-                received = dis.readUTF();
+                ois = new ObjectInputStream(tacheEnCours.getInputStream());
+                oos = new ObjectOutputStream(tacheEnCours.getOutputStream());
+                received = (String) ois.readObject();
 
                 if(received.equals("Exit"))
                 {
-                    System.out.println("ACTIVITE : Client " + this.s + " sends exit...");
-                    System.out.println("ACTIVITE : Closing this connection.");
-                    System.out.println("ACTIVITE : Connection closed");
+                    System.out.println("ACTIVITE : Client " + this.tacheEnCours + " quitte...");
+                    System.out.println("ACTIVITE : Fermeture connexion.");
+                    System.out.println("ACTIVITE : Connexion fermée");
                     connexion = 0;
                 }
 
                 if(received.equals("LOGIN")) {
-                    String user = dis.readUTF();
-                    String password = dis.readUTF();
-                    System.out.println("user = " + user);
-                    System.out.println("password = " + password);
+                    Utilisateur user = (Utilisateur) ois.readObject();
 
-                    if(user.equals("Oli") && password.equals("4653")) {
-                        dos.writeUTF("OK");
+                    ResultSet rs = this.BA.Login();
+                    int ok = 0;
+                    while (rs.next()) {
+                        String userbd = rs.getString(2);
+                        String pwdbd = rs.getString(3);
+
+                        if(user.get_nomUser().equals(userbd) && user.get_password().equals(pwdbd)) {
+                            System.out.println("Client trouve");
+                            ok = 1;
+                            break;
+                        }
+                    }
+
+                    if(ok==1) {
+                        oos.writeObject("OK");
 
                         // write on output stream based on the
                         // answer from the client
                         int continuer = 1;
                         while (continuer == 1) {
+                            BA.setValues("");
+                            BA.setTable("");
+                            BA.setCondition("");
+                            BA.setColumns("");
                             System.out.println("ACTIVITE : Boucle continuer");
-                            String requete = dis.readUTF();
+                            String requete = (String) ois.readObject();
                             switch (requete) {
 
                                 case "SHACT" :
-                                    dos.writeUTF("SHACT");
+                                    int nbJour = (int) ois.readObject();
+
+                                    if(nbJour==0) {
+                                        BA.setCondition("nbjour = 1");
+                                    }
+                                    else {
+                                        BA.setCondition("nbjour > 1");
+                                    }
+
+                                    BA.setTable("Activite");
+                                    ResultSet resultatSHACT = BA.Select(false);
+
+                                    while (resultatSHACT.next()) {
+                                        Activite activite = new Activite();
+                                        activite.setId(resultatSHACT.getInt("id"));
+                                        activite.setType(resultatSHACT.getString("type"));
+                                        activite.setDate(resultatSHACT.getString("datedeb"));
+                                        activite.setNbJours(resultatSHACT.getInt("nbjour"));
+                                        activite.setDureeHeure(resultatSHACT.getInt("dureeheure"));
+                                        activite.setNbMaxParticipants(resultatSHACT.getInt("nbmaxparticipants"));
+                                        activite.setNbInscrits(resultatSHACT.getInt("nbinscrits"));
+                                        activite.setPrixHTVA(resultatSHACT.getFloat("prixHTVA"));
+                                        oos.writeObject(activite);
+                                    }
+                                    oos.writeObject(null);
+
+                                    String message = (String) ois.readObject();
+                                    if(message.equals("Exit")) {
+                                        System.out.println("quitter");
+                                    }
+                                    else {
+                                        ReserActCha reservation = (ReserActCha) ois.readObject();
+
+                                        //INITIALISATION DES VALEURS A METTRE DANS LA BD
+                                        BA.setTable("reseractcha");
+                                        BA.setColumns("`PersRef`,`type`,`typeAct`,`nbMaxAct`,`nbInscrits`,`nbJour`,`dateDeb`,`dureeHeure`,`prixAct`,`paye`,`idAct`");
+                                        BA.setValues("'"+reservation.get_persRef()+"'"+", '"
+                                                +reservation.get_type()+"', '"
+                                                +reservation.get_typeAct()+"', "
+                                                +reservation.get_nbMaxAct()+", "
+                                                +reservation.get_nbInscrit()+", "
+                                                +reservation.get_nbJour()+", '"
+                                                +reservation.get_date()+"', "
+                                                +reservation.get_dureeHeure()+", "
+                                                +reservation.get_prixAct()+", "
+                                                +false+", "
+                                                +reservation.get_idAct());
+                                        //AJOUT A LA BD
+                                        int confirmation = BA.Insert();
+                                        if(confirmation == 1) {
+                                            oos.writeObject("OK");
+                                            BA.setTable("activite");
+                                            BA.setValues("nbInscrits = nbInscrits + " + reservation.get_nbInscrit());
+                                            BA.setCondition("id = " + reservation.get_idAct());
+                                            BA.Update();
+                                        }
+                                        else {
+                                            oos.writeObject("NOK");
+                                        }
+                                    }
                                     break;
 
-                                case "LGACT" :
-                                    dos.writeUTF("LGACT");
-                                    break;
+                                case "LISTACT" :
+                                    String nomActivite = (String) ois.readObject();
+                                    BA.setTable("Activite");
+                                    BA.setCondition("type = '" + nomActivite + "'");
+                                    ResultSet resultatLISTACT = BA.Select(false);
 
-                                case "LACT" :
-                                    dos.writeUTF("LACT");
+                                    while (resultatLISTACT.next()) {
+                                        Activite activite = new Activite();
+                                        activite.setId(resultatLISTACT.getInt("id"));
+                                        activite.setType(resultatLISTACT.getString("type"));
+                                        activite.setDate(resultatLISTACT.getString("datedeb"));
+                                        activite.setNbJours(resultatLISTACT.getInt("nbjour"));
+                                        activite.setNbMaxParticipants(resultatLISTACT.getInt("nbmaxparticipants"));
+                                        activite.setNbInscrits(resultatLISTACT.getInt("nbinscrits"));
+                                        oos.writeObject(activite);
+                                    }
+                                    oos.writeObject(null);
+
+                                    int IDActivite = (int) ois.readObject();
+
+                                    BA.setTable("reseractcha");
+                                    BA.setCondition("idAct = " + IDActivite);
+                                    ResultSet resultatParticipants = BA.Select(false);
+
+                                    while (resultatParticipants.next()) {
+                                        ReserActCha reservation = new ReserActCha();
+                                        reservation.set_id(resultatParticipants.getInt("id"));
+                                        reservation.set_typeAct(resultatParticipants.getString("typeAct"));
+                                        reservation.set_nbInscrit(resultatParticipants.getInt("nbinscrits"));
+                                        reservation.set_persRef(resultatParticipants.getString("persref"));
+                                        oos.writeObject(reservation);
+                                    }
+                                    oos.writeObject(null);
+
+                                    String messageretour = (String) ois.readObject();
+                                    System.out.println("messageretour = " + messageretour);
+
                                     break;
 
                                 case "DELACT" :
-                                    dos.writeUTF("DELACT");
+                                    String id = (String) ois.readObject();
+                                    //INITIALISATION DES VALEURS POUR RECHERCHER DANS LA BD LES RESERVATIONS DU CLIENTS
+                                    BA.setTable("ReserActCha");
+                                    BA.setCondition("id = " + id);
+                                    ResultSet resultat = BA.Select(false);
+                                    int nbInscrit = 0;
+                                    int idActivite = 0;
+                                    //on prend le nombre d'inscrit par cette réservation pour la retirer dans la table activite
+                                    while(resultat.next()) {
+                                        nbInscrit = resultat.getInt("nbInscrits");
+                                        idActivite = resultat.getInt("idAct");
+                                    }
+                                    //SUPPRESSION DANS LA BD DE L'ID CORRESPONDANT
+                                    int confirmation = BA.delete();
+                                    System.out.println("confirmation delete = " + confirmation);
+                                    if(confirmation==1) {
+                                        oos.writeObject("OK");
+                                        BA.setTable("activite");
+                                        BA.setCondition("id = " + idActivite);
+                                        BA.setValues("nbInscrits = nbInscrits - " + nbInscrit);
+                                        BA.Update();
+                                    }
+                                    else {
+                                        oos.writeObject("NOK");
+                                    }
                                     break;
 
                                 case "LOGOUT" :
-                                    dos.writeUTF("Au revoir");
+                                    oos.writeObject("Au revoir");
                                     continuer = 0;
                                     break;
 
                                 case "Exit" :
-                                    dos.writeUTF("Au revoir");
+                                    oos.writeObject("Au revoir");
                                     continuer = 0;
                                     connexion = 0;
-                                    break;
-
-                                default:
-                                    dos.writeUTF("ERROR : Invalid input");
                                     break;
                             }
                         }
                     }
                     else {
                         System.out.println("ACTIVITE : NOK");
-                        dos.writeUTF("NOK");
+                        oos.writeObject("NOK");
                     }
                 }
-            } catch (IOException e) {
+            } catch (IOException | ClassNotFoundException | SQLException e) {
                 e.printStackTrace();
             }
         }
 
         try
         {
-            // closing resources
-            this.s.close();
-            this.dis.close();
-            this.dos.close();
+            System.out.println("ACTIVITE : Fermeture des ressources");
+            this.tacheEnCours.close();
+            this.ois.close();
+            this.oos.close();
 
         }catch(IOException e){
             e.printStackTrace();

@@ -129,7 +129,11 @@ public class BD_Bean {
     }
 
     public ResultSet Login() throws SQLException {
-        return null;
+        String query = "Select * from user";
+
+        PreparedStatement pStmt = this.getConnection().prepareStatement(query, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+
+        return pStmt.executeQuery();
     }
 
     public int delete() throws SQLException {
@@ -158,7 +162,7 @@ public class BD_Bean {
             query = query + "(<columns>) ";
         }
 
-        query = query + "values <valeurs>";
+        query = query + "values (<valeurs>)";
 
         String SQL = query.replaceAll("<tables>", getTable()).replaceAll("<columns>", getColumns()).replaceAll("<valeurs>", getValues());
         PreparedStatement pStmt = this.getConnection().prepareCall(SQL, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);

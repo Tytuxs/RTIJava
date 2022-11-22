@@ -98,7 +98,7 @@ public class App_ReservationClient extends JDialog {
         buttonCROOM.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                App_CROOM app_croom = new App_CROOM(s,oos,ois);
+                App_CROOM app_croom = new App_CROOM(s,oos,ois,"CROOM");
                 app_croom.setVisible(true);
             }
         });

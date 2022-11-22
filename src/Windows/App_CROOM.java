@@ -43,15 +43,15 @@ public class App_CROOM extends JDialog {
         this.pack();
     }*/
 
-    public App_CROOM(Socket s, ObjectOutputStream dos, ObjectInputStream dis) {
+    public App_CROOM(Socket s, ObjectOutputStream dos, ObjectInputStream dis, String requete) {
 
         buttonSupprimer.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
                     if (!textFieldID.getText().equals("")) {
-                        dos.writeObject("CROOM");
-                        //DEMANDE AU CLIENT L'ID POUR SUPPRIMER LA RESEVATION CORRESPONDANTE
+                        dos.writeObject(requete);
+                        //DEMANDE AU CLIENT L'ID POUR SUPPRIMER LA RESERVATION CORRESPONDANTE
                         System.out.println("id de la reservation : ");
                         String id = textFieldID.getText();
                         dos.writeObject(id);

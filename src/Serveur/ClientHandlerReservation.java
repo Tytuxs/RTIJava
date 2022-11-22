@@ -19,7 +19,7 @@ import java.util.Date;
 
 public class ClientHandlerReservation extends Thread {
 
-    private SourceTaches tachesAExecuter;
+    private final SourceTaches tachesAExecuter;
     private Socket tacheEnCours;
     private ObjectInputStream ois;
     private ObjectOutputStream oos;
@@ -59,9 +59,9 @@ public class ClientHandlerReservation extends Thread {
 
                 if(received.equals("Exit"))
                 {
-                    System.out.println("Client " + this.tacheEnCours + " sends exit...");
-                    System.out.println("Closing this connection.");
-                    System.out.println("Connection closed");
+                    System.out.println("Client " + this.tacheEnCours + " quitte...");
+                    System.out.println("Fermeture connexion.");
+                    System.out.println("Connection fermée");
                     connexion = 0;
                 }
 
@@ -69,7 +69,6 @@ public class ClientHandlerReservation extends Thread {
                     Utilisateur user = (Utilisateur) ois.readObject();
 
                     ResultSet rs = this.BR.Login();
-
                     int ok = 0;
                     while (rs.next()) {
                         String userbd = rs.getString(2);

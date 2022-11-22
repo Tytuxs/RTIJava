@@ -19,6 +19,8 @@ public class ReserActCha implements Serializable {
     private float _prixCha;
     private boolean _paye;
     private String _categorie;
+    private int _dureeHeure;
+    private int _idAct;
 
 
     public int get_id() {
@@ -147,5 +149,21 @@ public class ReserActCha implements Serializable {
 
     public void set_categorie(String _categorie) {
         this._categorie = _categorie;
+    }
+
+    public int get_dureeHeure() {
+        return _dureeHeure;
+    }
+
+    public void set_dureeHeure(int _dureeHeure) {
+        this._dureeHeure = _dureeHeure;
+    }
+
+    public int get_idAct() {
+        return _idAct;
+    }
+
+    public void set_idAct(int _idAct) {
+        this._idAct = _idAct;
     }
 }
