@@ -11,6 +11,7 @@ public class TachesReservation implements SourceTaches {
         listeTaches = new LinkedList();
     }
 
+    //attends sur wait() pour recevoir le client
     public synchronized Socket getTache() throws InterruptedException
     {
         System.out.println("RESERVATION : getTache avant wait");
@@ -24,6 +25,7 @@ public class TachesReservation implements SourceTaches {
         return !listeTaches.isEmpty();
     }
 
+    //ajoute un client à la listeTaches et puis le notify pour débloquer le wait() dans la fonction getTache
     public synchronized void recordTache(Socket s)
     {
         listeTaches.addLast(s);

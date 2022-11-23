@@ -3,12 +3,6 @@ package Classe;
 import java.io.Serializable;
 
 public class Chambre  implements Serializable {
-    /*`numeroChambre` int NOT NULL,
-            `categorie` varchar(45) NOT NULL,
-  `typeChambre` varchar(45) NOT NULL,
-  `nbOccupants` int NOT NULL,
-            `prixHTVA` decimal(6,2) NOT NULL,*/
-
     private int _numeroChambre;
     private String _categorie;
     private String _typeChambre;
@@ -54,21 +48,4 @@ public class Chambre  implements Serializable {
     public void set_prixHTVA(float _prixHTVA) {
         this._prixHTVA = _prixHTVA;
     }
-
-    /*private char _equipement;
-    public char get_equipement() {
-        return _equipement;
-    }
-    public void set_equipement(char _equipement) {
-        this._equipement = _equipement;
-    }*/
-
-
-    /*public Chambre(int _numeroChambre, char _equipement, int _nombreOccupants, double _prixHTVA) {
-        this._numeroChambre = _numeroChambre;
-        this._nbOccupants = _nombreOccupants;
-        this._prixHTVA = _prixHTVA;
-    }*/
-
-
 }

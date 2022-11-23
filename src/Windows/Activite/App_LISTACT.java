@@ -51,8 +51,11 @@ public class App_LISTACT extends JDialog{
             public void actionPerformed(ActionEvent e) {
                 if(!textFieldActivite.equals("")) {
                     try {
+                        //envoit type requete
                         oos.writeObject("LISTACT");
+                        //envoit du nom de l'activite
                         oos.writeObject(textFieldActivite.getText());
+                        //recuperation des donnes a afficher dans le tableau
                         while (true) {
                             Activite activite = (Activite) ois.readObject();
                             if (activite == null)
@@ -81,7 +84,9 @@ public class App_LISTACT extends JDialog{
             public void actionPerformed(ActionEvent e) {
                 if(tableActivites.getSelectedRow() != -1) {
                     try {
+                        //envoit de l'id de l'activite selectionne dans la tableActivites
                         oos.writeObject(tableActivites.getValueAt(tableActivites.getSelectedRow(),0));
+                        //affichage de tous les inscrits a cette activite
                         while (true) {
                             ReserActCha reservation = (ReserActCha) ois.readObject();
                             if (reservation == null)

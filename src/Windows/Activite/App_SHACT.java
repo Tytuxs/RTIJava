@@ -24,6 +24,7 @@ public class App_SHACT extends JDialog {
     DefaultTableModel JTable_Affichage = new DefaultTableModel();
 
     public App_SHACT(ObjectOutputStream oos, ObjectInputStream ois, int nbJour) {
+        //nbJour = paramètre qui recoit 1 ou 0, 0 pour courte activite et 1 pour longue activite
         JTable_Affichage.setRowCount(0);
         JTable_Affichage.setColumnCount(8);
         Vector V = new Vector<>();
@@ -38,15 +39,18 @@ public class App_SHACT extends JDialog {
         JTable_Affichage.addRow(V);
 
         try {
+            //envoit type requete
             oos.writeObject("SHACT");
+            //envoit courte ou longue activite
             oos.writeObject(nbJour);
-            //RECEPTION DES ACTIVITES DE COURTES OU LONGUES DUREES
 
+            //RECEPTION DES ACTIVITES DE COURTES OU LONGUES DUREES
             while (true) {
                 Activite activite = (Activite) ois.readObject();
                 if (activite == null)
                     break;
                 else {
+                    //creation vecteur a inserer dans la table
                     Vector v = new Vector();
                     v.add(activite.getId());
                     v.add(activite.getType());
@@ -72,7 +76,9 @@ public class App_SHACT extends JDialog {
                         JOptionPane.showMessageDialog(null, "Rentrer le nombre a inscrire", "Alert", JOptionPane.WARNING_MESSAGE);
                     }
                     else {
+                        //ecrire un string != "Exit" pour eviter de quitter et permettre au serveur de ne pas bloquer sur un readObject()
                         oos.writeObject("CONTINUE");
+                        //envoit de la reservation selectionne dans la table
                         ReserActCha reservation = new ReserActCha();
                         reservation.set_persRef(textFieldPersRef.getText());
                         reservation.set_typeAct(table1.getValueAt(table1.getSelectedRow(),1).toString());
@@ -85,9 +91,9 @@ public class App_SHACT extends JDialog {
                         reservation.set_type("Activite");
                         reservation.set_paye(false);
                         reservation.set_idAct((Integer) table1.getValueAt(table1.getSelectedRow(),0));
-
                         oos.writeObject(reservation);
 
+                        //retourne si oui ou non ca a ete ajoute a la bd
                         String confirmation = (String) ois.readObject();
                         if (confirmation.equals("OK")) {
                             JOptionPane.showMessageDialog(null, "Réservation acceptée", "Alert", JOptionPane.WARNING_MESSAGE);

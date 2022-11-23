@@ -2,6 +2,8 @@ package database.facility;
 
 import java.sql.*;
 
+
+//ici pour les synchronized ???
 public class BD_Bean {
     private Connection MyConnexion;
     private Statement MyStatement;

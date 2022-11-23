@@ -46,12 +46,14 @@ public class ClientHandlerReservation extends Thread {
         while (connexion == 1)
         {
             try {
+                //attends de recevoir un client
                 tacheEnCours = tachesAExecuter.getTache();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
             System.out.println("Boucle connexion");
             try {
+                //creation des fluxs
                 ois = new ObjectInputStream(tacheEnCours.getInputStream());
                 oos = new ObjectOutputStream(tacheEnCours.getOutputStream());
                 // // RECEPTION DE LA REPONSE DU CLIENT

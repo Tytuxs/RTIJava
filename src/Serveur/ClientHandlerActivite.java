@@ -16,18 +16,12 @@ public class ClientHandlerActivite extends Thread {
     private ObjectOutputStream oos;
     BD_Bean BA;
 
-    /*public ClientHandlerActivite(Socket s, DataInputStream ois, DataOutputStream oos)
-    {
-        this.s = s;
-        this.ois = ois;
-        this.oos = oos;
-    }*/
-
     public ClientHandlerActivite(SourceTaches tachesAFaire, BD_Bean BA) {
         this.tachesAExecuter = tachesAFaire;
         this.BA = BA;
     }
 
+    //supprimer synchronized ??
     @Override
     public synchronized void run() {
         String received;
@@ -72,9 +66,6 @@ public class ClientHandlerActivite extends Thread {
 
                     if(ok==1) {
                         oos.writeObject("OK");
-
-                        // write on output stream based on the
-                        // answer from the client
                         int continuer = 1;
                         while (continuer == 1) {
                             BA.setValues("");
@@ -86,8 +77,10 @@ public class ClientHandlerActivite extends Thread {
                             switch (requete) {
 
                                 case "SHACT" :
+                                    //on recoit nbJour pour savoir si c'est une courte ou longue activite
                                     int nbJour = (int) ois.readObject();
 
+                                    //différents set pour faire la requete
                                     if(nbJour==0) {
                                         BA.setCondition("nbjour = 1");
                                     }
@@ -96,9 +89,11 @@ public class ClientHandlerActivite extends Thread {
                                     }
 
                                     BA.setTable("Activite");
+                                    //recuperation des resultats
                                     ResultSet resultatSHACT = BA.Select(false);
 
                                     while (resultatSHACT.next()) {
+                                        //envoi chaque objet activite correspondant a la demande
                                         Activite activite = new Activite();
                                         activite.setId(resultatSHACT.getInt("id"));
                                         activite.setType(resultatSHACT.getString("type"));
@@ -110,6 +105,7 @@ public class ClientHandlerActivite extends Thread {
                                         activite.setPrixHTVA(resultatSHACT.getFloat("prixHTVA"));
                                         oos.writeObject(activite);
                                     }
+                                    //envoit un objet null pour dire que c'est fini
                                     oos.writeObject(null);
 
                                     String message = (String) ois.readObject();
@@ -136,6 +132,7 @@ public class ClientHandlerActivite extends Thread {
                                         //AJOUT A LA BD
                                         int confirmation = BA.Insert();
                                         if(confirmation == 1) {
+                                            //si la reservation s'ajoute bien, on doit donc mettre a jour le nombre d'inscrit dans la table activite
                                             oos.writeObject("OK");
                                             BA.setTable("activite");
                                             BA.setValues("nbInscrits = nbInscrits + " + reservation.get_nbInscrit());
@@ -149,12 +146,14 @@ public class ClientHandlerActivite extends Thread {
                                     break;
 
                                 case "LISTACT" :
+                                    //recuperation nom activite et set de la requete
                                     String nomActivite = (String) ois.readObject();
                                     BA.setTable("Activite");
                                     BA.setCondition("type = '" + nomActivite + "'");
                                     ResultSet resultatLISTACT = BA.Select(false);
 
                                     while (resultatLISTACT.next()) {
+                                        //envoi chaque objet activite correspondant a la demande
                                         Activite activite = new Activite();
                                         activite.setId(resultatLISTACT.getInt("id"));
                                         activite.setType(resultatLISTACT.getString("type"));
@@ -164,15 +163,17 @@ public class ClientHandlerActivite extends Thread {
                                         activite.setNbInscrits(resultatLISTACT.getInt("nbinscrits"));
                                         oos.writeObject(activite);
                                     }
+                                    //envoit un objet null pour dire que c'est fini
                                     oos.writeObject(null);
 
+                                    //recuperation nom activite et set de la requete
                                     int IDActivite = (int) ois.readObject();
-
                                     BA.setTable("reseractcha");
                                     BA.setCondition("idAct = " + IDActivite);
                                     ResultSet resultatParticipants = BA.Select(false);
 
                                     while (resultatParticipants.next()) {
+                                        //envoi chaque reservation a l'activite correspondante
                                         ReserActCha reservation = new ReserActCha();
                                         reservation.set_id(resultatParticipants.getInt("id"));
                                         reservation.set_typeAct(resultatParticipants.getString("typeAct"));
@@ -182,6 +183,7 @@ public class ClientHandlerActivite extends Thread {
                                     }
                                     oos.writeObject(null);
 
+                                    //attends que le client quitte la fenetre, messageretour = "Exit"
                                     String messageretour = (String) ois.readObject();
                                     System.out.println("messageretour = " + messageretour);
 
@@ -204,6 +206,7 @@ public class ClientHandlerActivite extends Thread {
                                     int confirmation = BA.delete();
                                     System.out.println("confirmation delete = " + confirmation);
                                     if(confirmation==1) {
+                                        //si la reservation se retire bien, on doit donc mettre a jour le nombre d'inscrit dans la table activite
                                         oos.writeObject("OK");
                                         BA.setTable("activite");
                                         BA.setCondition("id = " + idActivite);
