@@ -39,7 +39,7 @@ public class ClientHandlerReservation extends Thread {
     }
 
     @Override
-    public synchronized void run()
+    public void run()
     {
         String received;
         int connexion = 1;

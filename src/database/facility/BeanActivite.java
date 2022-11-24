@@ -11,13 +11,13 @@ public class BeanActivite extends BD_Bean {
     //pas obligé de redéfinir les methodes
 
     @Override
-    public ResultSet Login() throws SQLException {
+    public synchronized ResultSet Login() throws SQLException {
         //on récupère tous les utilisateurs, utilise la methode de BD_Bean
         return super.Login();
     }
 
     @Override
-    public int Insert() throws SQLException {
+    public synchronized int Insert() throws SQLException {
         /*
          * Permet d'ajouter ce que le client a demander comme chambre, utilise la methode de BD_Bean
          */
