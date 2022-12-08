@@ -1,10 +1,11 @@
 package database.facility;
 
+import java.io.Serializable;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class BeanReservation extends BD_Bean {
+public class BeanReservation extends BD_Bean implements Serializable {
 
     public BeanReservation(String string, String user, String pwd) throws SQLException
     {
@@ -12,13 +13,13 @@ public class BeanReservation extends BD_Bean {
     }
 
     @Override
-    public ResultSet Login() throws SQLException{
+    public synchronized ResultSet Login() throws SQLException{
         //on récupère tous les utilisateurs, utilise la methode de BD_Bean
         return super.Login();
     }
 
     @Override
-    public ResultSet RequestLROOMS(String date) throws SQLException
+    public synchronized ResultSet RequestLROOMS(String date) throws SQLException
     {
         /*
         * Permet de recuperer toutes les chambres réservés dont la date est egale ou superieur a la date d'aujourd'hui
@@ -45,7 +46,7 @@ public class BeanReservation extends BD_Bean {
     }
 
     @Override
-    public ResultSet RequestBROOM(String categorie, String typeChambre, String dateDeb, String dateFin) throws SQLException
+    public synchronized ResultSet RequestBROOM(String categorie, String typeChambre, String dateDeb, String dateFin) throws SQLException
     {
         /*
          * Permet de recuperer toutes les chambres libre pour la tranche de date que l'utilisateur a demander
@@ -87,7 +88,7 @@ public class BeanReservation extends BD_Bean {
     }
 
     @Override
-    public int Insert() throws SQLException
+    public synchronized int Insert() throws SQLException
     {
         /*
          * Permet d'ajouter ce que le client a demander comme chambre, utilise la methode de BD_Bean

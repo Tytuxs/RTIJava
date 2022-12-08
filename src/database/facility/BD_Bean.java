@@ -2,8 +2,6 @@ package database.facility;
 
 import java.sql.*;
 
-
-//ici pour les synchronized ???
 public class BD_Bean {
     private Connection MyConnexion;
     private Statement MyStatement;
@@ -89,7 +87,7 @@ public class BD_Bean {
     }
 
     //FUNCTIONS
-    public ResultSet Select(boolean count) throws SQLException
+    public synchronized ResultSet Select(boolean count) throws SQLException
     {
         String colonnes = "*";
         String query = "Select <columns> from <tables>";
@@ -115,7 +113,7 @@ public class BD_Bean {
         return pStmt.executeQuery();
     }
 
-    public int Update() throws SQLException
+    public synchronized int Update() throws SQLException
     {
         String query = "Update <tables> set <values>";
 
@@ -130,7 +128,7 @@ public class BD_Bean {
         return pStmt.executeUpdate();
     }
 
-    public ResultSet Login() throws SQLException {
+    public synchronized ResultSet Login() throws SQLException {
         String query = "Select * from user";
 
         PreparedStatement pStmt = this.getConnection().prepareStatement(query, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
@@ -138,7 +136,7 @@ public class BD_Bean {
         return pStmt.executeQuery();
     }
 
-    public int delete() throws SQLException {
+    public synchronized int delete() throws SQLException {
         String query = "delete from <tables> where <cond>";
 
         String SQL = query.replaceAll("<tables>", getTable()).replaceAll("<cond>",getCondition());
@@ -148,15 +146,15 @@ public class BD_Bean {
         return pStmt.executeUpdate();
     }
 
-    public ResultSet RequestLROOMS(String date) throws SQLException {
+    public synchronized ResultSet RequestLROOMS(String date) throws SQLException {
         return null;
     }
 
-    public ResultSet RequestBROOM(String categorie, String typeChambre, String dateDeb, String dateFin) throws SQLException {
+    public synchronized ResultSet RequestBROOM(String categorie, String typeChambre, String dateDeb, String dateFin) throws SQLException {
         return null;
     }
 
-    public int Insert() throws SQLException
+    public synchronized int Insert() throws SQLException
     {
         String query = "Insert into <tables> ";
 
