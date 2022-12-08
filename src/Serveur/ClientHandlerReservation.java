@@ -100,6 +100,7 @@ public class ClientHandlerReservation extends Thread {
                             switch (requete) {
 
                                 case "BROOM" :
+                                    System.out.println("BROOM");
                                     //recuperation des differents champs demandes
                                     ReserActCha reservationChambre = (ReserActCha) ois.readObject();
 
@@ -116,6 +117,8 @@ public class ClientHandlerReservation extends Thread {
                                     while (resultatBROOM.next()) {
                                         Chambre chambre = new Chambre();
                                         chambre.set_numeroChambre(Integer.parseInt(resultatBROOM.getString("numeroChambre")));
+                                        chambre.set_categorie(resultatBROOM.getString("categorie"));
+                                        chambre.set_typeChambre(resultatBROOM.getString("typeChambre"));
                                         chambre.set_prixHTVA(Float.parseFloat(resultatBROOM.getString("PrixHTVA")));
                                         System.out.println("chambre envoye = " + chambre);
                                         oos.writeObject(chambre);

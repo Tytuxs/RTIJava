@@ -1,10 +1,11 @@
 package database.facility;
 
+import java.io.Serializable;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class BeanReservation extends BD_Bean {
+public class BeanReservation extends BD_Bean implements Serializable {
 
     public BeanReservation(String string, String user, String pwd) throws SQLException
     {
