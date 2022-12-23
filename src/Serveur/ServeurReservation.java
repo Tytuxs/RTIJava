@@ -37,14 +37,14 @@ public class ServeurReservation extends Thread {
                 ClientHandlerReservation ThrClient = new ClientHandlerReservation(tachesAFaire, BR);
                 ThrClient.start();
             }
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             e.printStackTrace();
         }
 
         while (true)
         {
             Socket s = null;
-
             try
             {
                 assert ss != null;

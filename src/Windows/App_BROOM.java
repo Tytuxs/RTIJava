@@ -189,10 +189,12 @@ public class App_BROOM extends JDialog{
                         oos.writeObject(chambre);
                         String confirmation = (String) ois.readObject();
 
-                        if (confirmation.equals("OK")) {
-                            JOptionPane.showMessageDialog(null, "Réservation acceptée", "Alert", JOptionPane.WARNING_MESSAGE);
-                        } else {
+                        if (confirmation.equals("NOK")) {
                             JOptionPane.showMessageDialog(null, "Erreur Réservation", "Alert", JOptionPane.WARNING_MESSAGE);
+                        } else {
+                            JOptionPane.showMessageDialog(null, "Réservation acceptée", "Alert", JOptionPane.WARNING_MESSAGE);
+                            ReserActCha reservation = (ReserActCha) ois.readObject();
+                            System.out.println(reservation);
                         }
                         verificationBoutonRech = 0;
                     }

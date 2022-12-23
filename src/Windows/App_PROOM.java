@@ -23,91 +23,14 @@ public class App_PROOM extends JDialog {
 
     DefaultTableModel JTable_Affichage = new DefaultTableModel();
 
-    /*public App_PROOM(Socket s, DataOutputStream dos, DataInputStream dis) {
-
-        buttonRechercher.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    String message;
-                    dos.writeUTF("PROOM");
-                    JTable_Affichage.setRowCount(0);
-                    JTable_Affichage.setColumnCount(5);
-                    String nomClient = textFieldNomClient.getText();
-                    dos.writeUTF(nomClient);
-
-                    //LECTURE DES MESSAGES RECUS ET BOUCLE JUSQU'AU MESSAGE "FIN"
-                    while (true) {
-                        message = dis.readUTF();
-                        if(message.equals("FIN"))
-                            break;
-                        else {
-                            StringTokenizer st = new StringTokenizer(message,";");
-                            while (st.hasMoreTokens()) {
-                                Vector v = new Vector();
-                                v.add(st.nextToken());
-                                v.add(st.nextToken());
-                                v.add(st.nextToken());
-                                v.add(st.nextToken());
-                                v.add(st.nextToken());
-                                JTable_Affichage.addRow(v);
-                            }
-                        }
-                    }
-
-                    dos.writeUTF("OK");
-                    System.out.println("id de la reservation : ");
-                    String id = (String) table1.getValueAt(table1.getSelectedRow(),0);
-                        dos.writeUTF(id);
-                        String confirmation = dis.readUTF();
-                        if (confirmation.equals("OK")) {
-                            JOptionPane.showMessageDialog(null, "Paiement fait", "Alert", JOptionPane.WARNING_MESSAGE);
-                        } else {
-                            JOptionPane.showMessageDialog(null, "Paiement déjà fait ou Erreur lors du paiement", "Alert", JOptionPane.WARNING_MESSAGE);
-                        }
-
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
-            }
-        });*/
-
-        /*buttonPayer.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    dos.writeUTF("OK");
-                    System.out.println("id de la reservation : ");
-                    String id = (String) table1.getValueAt(table1.getSelectedRow(), 0);
-                    dos.writeUTF(id);
-                    String confirmation = dis.readUTF();
-                    if (confirmation.equals("OK")) {
-                        JOptionPane.showMessageDialog(null, "Paiement fait", "Alert", JOptionPane.WARNING_MESSAGE);
-                    } else {
-                        JOptionPane.showMessageDialog(null, "Paiement déjà fait ou Erreur lors du paiement", "Alert", JOptionPane.WARNING_MESSAGE);
-                    }
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
-
-                App_PROOM.super.dispose();
-            }
-        });
-
-        this.setMinimumSize(new Dimension(600, 600));
-        this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        this.setContentPane(panelPROOM);
-        this.pack();
-    }*/
-
-    public App_PROOM(Socket s, ObjectOutputStream dos, ObjectInputStream dis) {
+    public App_PROOM(Socket s, ObjectOutputStream oos, ObjectInputStream ois) {
 
         buttonRechercher.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
                     ReserActCha reservation;
-                    dos.writeObject("PROOM");
+                    oos.writeObject("PROOM");
                     JTable_Affichage.setRowCount(0);
                     JTable_Affichage.setColumnCount(5);
                     Vector V = new Vector<>();
@@ -118,11 +41,11 @@ public class App_PROOM extends JDialog {
                     V.add("Payé ?");
                     JTable_Affichage.addRow(V);
                     String nomClient = textFieldNomClient.getText();
-                    dos.writeObject(nomClient);
+                    oos.writeObject(nomClient);
 
                     //LECTURE DES MESSAGES RECUS ET BOUCLE JUSQU'AU MESSAGE "FIN"
                     while (true) {
-                        reservation = (ReserActCha) dis.readObject();
+                        reservation = (ReserActCha) ois.readObject();
                         if(reservation==null)
                             break;
                         else {
@@ -153,10 +76,10 @@ public class App_PROOM extends JDialog {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    dos.writeObject("OK");
+                    oos.writeObject("OK");
                     String id = table1.getValueAt(table1.getSelectedRow(), 0).toString();
-                    dos.writeObject(id);
-                    String confirmation = (String) dis.readObject();
+                    oos.writeObject(id);
+                    String confirmation = (String) ois.readObject();
                     if (confirmation.equals("OK")) {
                         JOptionPane.showMessageDialog(null, "Paiement fait", "Alert", JOptionPane.WARNING_MESSAGE);
                     } else {

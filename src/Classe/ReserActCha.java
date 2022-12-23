@@ -21,6 +21,7 @@ public class ReserActCha implements Serializable {
     private String _categorie;
     private int _dureeHeure;
     private int _idAct;
+    private float _dejaPaye;
 
 
     public int get_id() {
@@ -165,5 +166,13 @@ public class ReserActCha implements Serializable {
 
     public void set_idAct(int _idAct) {
         this._idAct = _idAct;
+    }
+
+    public float get_dejaPaye() {
+        return _dejaPaye;
+    }
+
+    public void set_dejaPaye(float _dejaPaye) {
+        this._dejaPaye = _dejaPaye;
     }
 }

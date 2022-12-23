@@ -9,6 +9,7 @@ import database.facility.BD_Bean;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -23,16 +24,12 @@ public class ClientHandlerReservation extends Thread {
     private Socket tacheEnCours;
     private ObjectInputStream ois;
     private ObjectOutputStream oos;
+    private ObjectOutputStream oosPaiement;
+    private ObjectInputStream oisPaiement;
+    Socket sPaiement;
     BD_Bean BR;
 
     // Constructor
-    /*public ClientHandlerReservation(Socket s, ObjectInputStream ois, ObjectOutputStream oos) throws SQLException {
-        this.s = s;
-        this.ois = ois;
-        this.oos = oos;
-        BR = new BeanReservation("jdbc:mysql://localhost:3306/bd_holidays","root","pwdmysql");
-    }*/
-
     public ClientHandlerReservation(SourceTaches tachesAFaire, BD_Bean BR) {
         this.tachesAExecuter = tachesAFaire;
         this.BR = BR;
@@ -48,7 +45,8 @@ public class ClientHandlerReservation extends Thread {
             try {
                 //attends de recevoir un client
                 tacheEnCours = tachesAExecuter.getTache();
-            } catch (InterruptedException e) {
+            }
+            catch (InterruptedException e) {
                 e.printStackTrace();
             }
             System.out.println("Boucle connexion");
@@ -63,7 +61,7 @@ public class ClientHandlerReservation extends Thread {
                 {
                     System.out.println("Client " + this.tacheEnCours + " quitte...");
                     System.out.println("Fermeture connexion.");
-                    System.out.println("Connection fermée");
+                    System.out.println("Connexion fermée");
                     connexion = 0;
                 }
 
@@ -152,10 +150,26 @@ public class ClientHandlerReservation extends Thread {
                                                 +chambreAResa.get_prixHTVA()+","
                                                 +false);
                                         //AJOUT A LA BD
+                                        System.out.println(reservationChambre.get_id());
+                                        System.out.println(reservationChambre.get_numChambre());
+                                        System.out.println(reservationChambre.get_prixCha());
                                         int confirmation = BR.Insert();
+
+                                        BR.setValues("");
+                                        BR.setColumns("");
+                                        BR.setCondition("numChambre = " + chambreAResa.get_numeroChambre() + " AND datedeb = '" + reservationChambre.get_date() + "' AND PersRef = '" + reservationChambre.get_persRef() + "'");
+                                        ReserActCha resaAEnvoye = new ReserActCha();
+
+                                        ResultSet tmp = BR.Select(false);
+                                        tmp.next();
+                                        resaAEnvoye.set_persRef(tmp.getString("persref"));
+                                        resaAEnvoye.set_id(Integer.parseInt(tmp.getString("id")));
+                                        resaAEnvoye.set_prixCha(Float.parseFloat(tmp.getString("prixCha")));
+                                        resaAEnvoye.set_numChambre(Integer.parseInt(tmp.getString("numChambre")));
 
                                         if(confirmation == 1) {
                                             oos.writeObject("OK");
+                                            oos.writeObject(resaAEnvoye);
                                         }
                                         else {
                                             oos.writeObject("NOK");
@@ -165,6 +179,12 @@ public class ClientHandlerReservation extends Thread {
                                     break;
 
                                 case "PROOM" :
+                                    //creation connexion au serveur paiement
+                                    InetAddress ip = InetAddress.getByName("localhost");
+                                    sPaiement = new Socket(ip, 7000);
+                                    System.out.println("sPaiement = " + sPaiement);
+                                    System.out.println("Connexion au ServeurPaiement avec le ServeurReservation");
+
                                     //RECUPERATION DU NOM DU CLIENT
                                     String nomClient = (String) ois.readObject();
                                     //INITIALISATION DES VALEURS POUR RECHERCHER DANS LA BD LES RESERVATIONS DU CLIENTS
@@ -186,19 +206,45 @@ public class ClientHandlerReservation extends Thread {
                                     oos.writeObject(null);
                                     //ATTENTE DU CLIENT POUR PAYER
                                     String paye = (String) ois.readObject();
+                                    System.out.println("paye = " + paye);
                                     if(paye.equals("OK")) {
-                                        System.out.println("IciOK");
                                         String id = (String) ois.readObject();
-                                        BR.setTable("ReserActCha");
-                                        BR.setCondition("id = " + id);
-                                        BR.setValues("paye = true");
-                                        int confirmation = BR.Update();
-                                        if(confirmation==1) {
-                                            oos.writeObject("OK");
+                                        System.out.println("id = " + id);
+                                        System.out.println("sPaiement = " + this.sPaiement);
+                                        //penser à inverser les flux si erreur de création
+                                        this.oosPaiement = new ObjectOutputStream(this.sPaiement.getOutputStream());
+                                        this.oisPaiement = new ObjectInputStream(this.sPaiement.getInputStream());
+
+                                        System.out.println("oisPaiement = " + this.oisPaiement);
+                                        System.out.println("oosPaiement = " + this.oosPaiement);
+
+                                        oosPaiement.writeObject("SERVEURRESA");
+
+                                        String confirmation;
+                                        confirmation = (String) oisPaiement.readObject();
+                                        if(confirmation.equals("OK")) {
+                                            System.out.println("Connexion réussie");
+                                            //requete de paiement
+                                            oosPaiement.writeObject("PROOMPAY");
+                                            //envoie id
+                                            oosPaiement.writeObject(id);
+                                            String confirmationPaiement = (String) oisPaiement.readObject();
+                                            System.out.println("Paiement :" + confirmationPaiement);
+
+                                            if(confirmationPaiement.equals("OK")) {
+                                                oos.writeObject(confirmationPaiement);
+                                            }
+                                            else {
+                                                oos.writeObject(confirmationPaiement);
+                                            }
                                         }
                                         else {
-                                            oos.writeObject("NOK");
+                                            System.out.println("Connexion refusée");
                                         }
+                                        oosPaiement.writeObject("Exit");
+                                        oosPaiement.close();
+                                        oisPaiement.close();
+                                        sPaiement.close();
                                     }
                                     break;
 
@@ -243,6 +289,50 @@ public class ClientHandlerReservation extends Thread {
                                     oos.writeObject(null);
                                     break;
 
+                                case "PROOMWEB" :
+                                    InetAddress IP = InetAddress.getByName("localhost");
+                                    sPaiement = new Socket(IP, 7000);
+                                    System.out.println("sPaiement = " + sPaiement);
+                                    System.out.println("Connexion au ServeurPaiement avec le ServeurReservation");
+
+                                    String ID = (String) ois.readObject();
+                                    System.out.println("id = " + ID);
+                                    System.out.println("sPaiement = " + this.sPaiement);
+                                    //penser à inverser les flux si erreur de création
+                                    this.oosPaiement = new ObjectOutputStream(this.sPaiement.getOutputStream());
+                                    this.oisPaiement = new ObjectInputStream(this.sPaiement.getInputStream());
+
+                                    System.out.println("oisPaiement = " + this.oisPaiement);
+                                    System.out.println("oosPaiement = " + this.oosPaiement);
+
+                                    oosPaiement.writeObject("SERVEURRESA");
+
+                                    String confir;
+                                    confir = (String) oisPaiement.readObject();
+                                    if(confir.equals("OK")) {
+                                        System.out.println("Connexion réussie");
+                                        //requete de paiement
+                                        oosPaiement.writeObject("PROOMPAY");
+                                        //envoie id
+                                        oosPaiement.writeObject(ID);
+                                        String confirmationPaiement = (String) oisPaiement.readObject();
+                                        System.out.println("Paiement :" + confirmationPaiement);
+
+                                        if(confirmationPaiement.equals("OK")) {
+                                            oos.writeObject(confirmationPaiement);
+                                        }
+                                        else {
+                                            oos.writeObject(confirmationPaiement);
+                                        }
+                                    }
+                                    else {
+                                        System.out.println("Connexion refusée");
+                                    }
+                                    oosPaiement.writeObject("Exit");
+                                    oosPaiement.close();
+                                    oisPaiement.close();
+                                    sPaiement.close();
+
                                 case "LOGOUT" :
                                     oos.writeObject("Au revoir");
                                     continuer = 0;
@@ -265,7 +355,8 @@ public class ClientHandlerReservation extends Thread {
                         oos.writeObject("NOK");
                     }
                 }
-            } catch (IOException | SQLException | ClassNotFoundException | ParseException e) {
+            }
+            catch (IOException | SQLException | ClassNotFoundException | ParseException e) {
                 e.printStackTrace();
             }
         }
