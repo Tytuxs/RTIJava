@@ -34,7 +34,7 @@ public class ServeurCarte extends Thread {
         try {
             ss = new ServerSocket(getPort());
             for(int i=0; i<3;i++) {
-                ClientHandlerPaiement ThrClient = new ClientHandlerPaiement(tachesAFaire, BC);
+                ClientHandlerCarte ThrClient = new ClientHandlerCarte(tachesAFaire, BC);
                 ThrClient.start();
             }
         }

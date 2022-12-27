@@ -2,7 +2,6 @@ package Serveur;
 
 import Classe.Carte;
 import Classe.SourceTaches;
-import Classe.Utilisateur;
 import database.facility.BD_Bean;
 
 import java.io.IOException;
@@ -53,10 +52,14 @@ public class ClientHandlerCarte extends Thread {
                 }
 
                 if(received.equals("VERIFICATION")) {
+                    oos.writeObject("OK");
                     Carte verifCarte = (Carte) ois.readObject();
+                    System.out.println("nomClient = " + verifCarte.get_nomClient());
+                    System.out.println("numeroCarte = " + verifCarte.get_numeroCarte());
+                    System.out.println("mdp = " + verifCarte.get_mdp());
 
                     BC.setTable("Carte");
-                    BC.setCondition("nomClient = '" + verifCarte.get_nomClient() + "' and " + "motDePasse = '" + verifCarte.get_mdp() + "' and numeroCarte = '" + verifCarte.get_numeroCarte() + "'");
+                    BC.setCondition("nomClient = '" + verifCarte.get_nomClient() + "' and " + "mdp = '" + verifCarte.get_mdp() + "' and numeroCarte = '" + verifCarte.get_numeroCarte() + "'");
                     ResultSet rs = BC.Select(false);
                     int compteur = 0;
                     while (rs.next()) {
@@ -69,6 +72,9 @@ public class ClientHandlerCarte extends Thread {
                     else {
                         oos.writeObject("NOK");
                     }
+                }
+                else {
+                    oos.writeObject("NOK");
                 }
             } catch (IOException | ClassNotFoundException | InterruptedException | SQLException e) {
                 e.printStackTrace();

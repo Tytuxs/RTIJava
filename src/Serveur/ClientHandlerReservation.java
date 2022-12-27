@@ -213,8 +213,13 @@ public class ClientHandlerReservation extends Thread {
                                     if(paye.equals("OK")) {
                                         String id = (String) ois.readObject();
                                         float paiement = (Float) ois.readObject();
+                                        String CB = (String) ois.readObject();
+                                        String CBMDP = (String) ois.readObject();
+
                                         System.out.println("id = " + id);
                                         System.out.println("paiement = " + paiement);
+                                        System.out.println("CB = " + CB);
+                                        System.out.println("CBMDP = " + CBMDP);
 
                                         //penser à inverser les flux si erreur de création
                                         this.oosPaiement = new ObjectOutputStream(this.sPaiement.getOutputStream());
@@ -228,9 +233,12 @@ public class ClientHandlerReservation extends Thread {
                                             System.out.println("Connexion réussie");
                                             //requete de paiement
                                             oosPaiement.writeObject("PROOMPAY");
-                                            //envoie id
+                                            //envoie id, paiement et info carte
+                                            oosPaiement.writeObject(nomClient);
                                             oosPaiement.writeObject(id);
                                             oosPaiement.writeObject(paiement);
+                                            oosPaiement.writeObject(CB);
+                                            oosPaiement.writeObject(CBMDP);
                                             String confirmationPaiement = (String) oisPaiement.readObject();
                                             System.out.println("Paiement :" + confirmationPaiement);
 

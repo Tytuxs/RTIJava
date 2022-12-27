@@ -84,16 +84,11 @@ public class App_PROOM extends JDialog {
                 try {
                     oos.writeObject("OK");
                     String id = table1.getValueAt(table1.getSelectedRow(), 0).toString();
-                    float paiement = Float.parseFloat(textFieldPaiement.getText());
-                    oos.writeObject(id);
-                    oos.writeObject(paiement);
-                    String confirmation = (String) ois.readObject();
-                    if (confirmation.equals("OK")) {
-                        JOptionPane.showMessageDialog(null, "Paiement fait", "Alert", JOptionPane.WARNING_MESSAGE);
-                    } else {
-                        JOptionPane.showMessageDialog(null, "Paiement déjà fait ou Erreur lors du paiement", "Alert", JOptionPane.WARNING_MESSAGE);
-                    }
-                } catch (IOException | ClassNotFoundException ex) {
+                    App_PaiementValidation app = new App_PaiementValidation(id, oos, ois);
+                    app.setVisible(true);
+
+
+                } catch (IOException ex) {
                     ex.printStackTrace();
                 }
                 App_PROOM.super.dispose();

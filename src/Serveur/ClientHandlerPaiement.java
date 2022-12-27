@@ -1,5 +1,6 @@
 package Serveur;
 
+import Classe.Carte;
 import Classe.SourceTaches;
 import Classe.Utilisateur;
 import database.facility.BD_Bean;
@@ -7,6 +8,7 @@ import database.facility.BD_Bean;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -16,6 +18,9 @@ public class ClientHandlerPaiement extends Thread {
     private Socket tacheEnCours;
     private ObjectInputStream oisReservation;
     private ObjectOutputStream oosReservation;
+    private Socket sCarte;
+    private ObjectInputStream oisCarte;
+    private ObjectOutputStream oosCarte;
     BD_Bean BP;
 
     public ClientHandlerPaiement(SourceTaches tachesAFaire, BD_Bean BP) {
@@ -91,30 +96,56 @@ public class ClientHandlerPaiement extends Thread {
                         System.out.println("Requete recue : " + requete);
                         switch (requete) {
                             case "PROOMPAY" :
+                                String nomClient = (String) oisReservation.readObject();
                                 String id = (String) oisReservation.readObject();
                                 float paiement = (Float) oisReservation.readObject();
+                                String CB = (String) oisReservation.readObject();
+                                String CBMDP = (String) oisReservation.readObject();
 
-                                BP.setTable("ReserActCha");
-                                BP.setCondition("id = " + id);
+                                //verification de la carteBancaire
+                                InetAddress ip = InetAddress.getByName("localhost");
+                                sCarte = new Socket(ip, 8000);
+                                System.out.println("sPaiement = " + sCarte);
+                                System.out.println("Connexion au ServeurCarte avec le ServeurPaiement");
 
-                                ResultSet rs = BP.Select(false);
-                                float dejaPaye = 0;
+                                //penser à inverser les flux si erreur de création
+                                this.oosCarte = new ObjectOutputStream(this.sCarte.getOutputStream());
+                                this.oisCarte = new ObjectInputStream(this.sCarte.getInputStream());
 
-                                while (rs.next()) {
-                                    dejaPaye = rs.getFloat("dejaPaye");
-                                }
+                                Carte carte = new Carte();
+                                carte.set_nomClient(nomClient);
+                                carte.set_numeroCarte(CB);
+                                carte.set_mdp(CBMDP);
 
-                                paiement += dejaPaye;
+                                oosCarte.writeObject("VERIFICATION");
+                                if(oisCarte.readObject().equals("OK")) {
+                                    oosCarte.writeObject(carte);
+                                    String confirmation = (String) oisCarte.readObject();
+                                    if (confirmation.equals("OK")) {
+                                        BP.setTable("ReserActCha");
+                                        BP.setCondition("id = " + id);
 
-                                BP.setValues("dejaPaye = " + paiement);
-                                System.out.println("avant Update");
-                                int confirmation = BP.Update();
-                                System.out.println("apres Update");
-                                if(confirmation==1) {
-                                    oosReservation.writeObject("OK");
-                                }
-                                else {
-                                    oosReservation.writeObject("NOK");
+                                        ResultSet rs = BP.Select(false);
+                                        float dejaPaye = 0;
+
+                                        while (rs.next()) {
+                                            dejaPaye = rs.getFloat("dejaPaye");
+                                        }
+
+                                        paiement += dejaPaye;
+
+                                        BP.setValues("dejaPaye = " + paiement);
+                                        System.out.println("avant Update");
+                                        int confir = BP.Update();
+                                        System.out.println("apres Update");
+                                        if (confir == 1) {
+                                            oosReservation.writeObject("OK");
+                                        } else {
+                                            oosReservation.writeObject("NOK");
+                                        }
+                                    } else {
+                                        oosReservation.writeObject("Erreur carte bancaire");
+                                    }
                                 }
                                 break;
                             case "LOGOUT" :

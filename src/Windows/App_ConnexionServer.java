@@ -1,6 +1,7 @@
 package Windows;
 
 import Serveur.ServeurActivite;
+import Serveur.ServeurCarte;
 import Serveur.ServeurPaiement;
 import Serveur.ServeurReservation;
 
@@ -18,6 +19,7 @@ public class App_ConnexionServer extends JDialog{
     private ServeurReservation serveurResaChambre = new ServeurReservation(5056);
     private ServeurActivite serveurResaActi = new ServeurActivite(6000);
     private ServeurPaiement serveurPaiement = new ServeurPaiement(7000);
+    private ServeurCarte serveurCarte = new ServeurCarte(8000);
 
     public App_ConnexionServer() throws SQLException {
         button_LancerServeur.addActionListener(new ActionListener() {
@@ -34,6 +36,10 @@ public class App_ConnexionServer extends JDialog{
                 Thread threadPaiement = new Thread(serveurPaiement);
                 System.out.println("Lancement du ServeurPaiement avec un thread");
                 threadPaiement.start();
+
+                Thread threadCarte = new Thread(serveurCarte);
+                System.out.println("Lancement du ServeurCarte avec un thread");
+                threadCarte.start();
             }
         });
 

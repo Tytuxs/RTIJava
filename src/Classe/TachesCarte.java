@@ -12,7 +12,7 @@ public class TachesCarte implements SourceTaches {
 
     @Override
     public synchronized Socket getTache() throws InterruptedException {
-        System.out.println("PAIEMENT : getTache avant wait");
+        System.out.println("CARTE : getTache avant wait");
         while (!existTaches())
             wait();
         return (Socket) listeTaches.remove();
@@ -26,7 +26,7 @@ public class TachesCarte implements SourceTaches {
     @Override
     public synchronized void recordTache(Socket s) {
         listeTaches.add(s);
-        System.out.println("PAIEMENT : ListeTaches : tache dans la file");
+        System.out.println("CARTE : ListeTaches : tache dans la file");
         notify();
     }
 }
