@@ -3,16 +3,22 @@ package Serveur;
 import Classe.Carte;
 import Classe.ReserActCha;
 import Classe.SourceTaches;
-import Classe.Utilisateur;
+import ClassesCrypto.RequeteDigest;
 import database.facility.BD_Bean;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.Security;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
 
 public class ClientHandlerPaiement extends Thread {
     private final SourceTaches tachesAExecuter;
@@ -23,6 +29,7 @@ public class ClientHandlerPaiement extends Thread {
     private ObjectInputStream oisCarte;
     private ObjectOutputStream oosCarte;
     BD_Bean BP;
+    private static String codeProvider = "BC";
 
     public ClientHandlerPaiement(SourceTaches tachesAFaire, BD_Bean BP) {
         this.tachesAExecuter = tachesAFaire;
@@ -31,6 +38,7 @@ public class ClientHandlerPaiement extends Thread {
 
     @Override
     public void run() {
+        Security.addProvider(new BouncyCastleProvider());
         String received;
         int connexion = 1;
         while (connexion == 1) {
@@ -61,7 +69,7 @@ public class ClientHandlerPaiement extends Thread {
 
                 int ok = 0;
                 if(received.equals("LOGIN")) {
-                    Utilisateur user = (Utilisateur) oisReservation.readObject();
+                    /*Utilisateur user = (Utilisateur) oisReservation.readObject();
 
                     ResultSet rs = this.BP.Login();
                     while (rs.next()) {
@@ -71,6 +79,26 @@ public class ClientHandlerPaiement extends Thread {
                         if (user.get_nomUser().equals(userbd) && user.get_password().equals(pwdbd)) {
                             System.out.println("Client trouve");
                             ok = 1;
+                            break;
+                        }
+                    }*/
+                    RequeteDigest user = (RequeteDigest) oisReservation.readObject();
+                    ResultSet rs = this.BP.Login();
+                    while (rs.next()) {
+                        String userbd = rs.getString(2);
+                        String pwdbd = rs.getString(3);
+
+                        if (user.getUtilisateur().equals(userbd)) {
+                            //verif de pwdbd en creant un digest
+                            MessageDigest md = MessageDigest.getInstance("SHA-1", codeProvider);
+                            md.update(user.getUtilisateur().getBytes());
+                            md.update(pwdbd.getBytes());
+                            byte[] mdLocal = md.digest();
+                            if(MessageDigest.isEqual(user.getMdp(),mdLocal)) {
+                                ok = 1;
+                            }
+                            System.out.println("message recu = " + Arrays.toString(user.getMdp()));
+                            System.out.println("message local = " + Arrays.toString(mdLocal));
                             break;
                         }
                     }
@@ -193,7 +221,7 @@ public class ClientHandlerPaiement extends Thread {
                     oosReservation.writeObject("NOK");
                 }
             }
-            catch (IOException | SQLException | ClassNotFoundException e) {
+            catch (IOException | SQLException | ClassNotFoundException | NoSuchAlgorithmException | NoSuchProviderException e) {
                 e.printStackTrace();
             }
         }

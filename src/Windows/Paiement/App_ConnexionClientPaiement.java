@@ -1,7 +1,9 @@
 package Windows.Paiement;
 
 import Classe.Utilisateur;
+import ClassesCrypto.RequeteDigest;
 import Windows.App_ReservationClient;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,7 +14,12 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.Security;
+import java.util.Date;
 
 public class App_ConnexionClientPaiement extends JDialog {
     private JPanel clientPaiementPanel;
@@ -20,11 +27,11 @@ public class App_ConnexionClientPaiement extends JDialog {
     private JTextField textFieldUtilisateur;
     private JButton buttonQuitter;
     private JTextField textFieldMotDePasse;
-    //private static String codeProvider = "BC";
+    private static String codeProvider = "BC";
 
     public App_ConnexionClientPaiement() throws IOException {
 
-
+        Security.addProvider(new BouncyCastleProvider());
         InetAddress ip = InetAddress.getByName("localhost");
 
         Socket s = new Socket(ip, 7000);
@@ -38,9 +45,18 @@ public class App_ConnexionClientPaiement extends JDialog {
             public void actionPerformed(ActionEvent e) {
                 try {
                     oos.writeObject("LOGIN");
-                    utilisateur.set_nomUser(textFieldUtilisateur.getText());
+                    /*utilisateur.set_nomUser(textFieldUtilisateur.getText());
                     utilisateur.set_password(textFieldMotDePasse.getText());
-                    oos.writeObject(utilisateur);
+                    oos.writeObject(utilisateur);*/
+
+                    MessageDigest md = MessageDigest.getInstance("SHA-1", codeProvider);
+                    md.update(textFieldUtilisateur.getText().getBytes());
+                    md.update(textFieldMotDePasse.getText().getBytes());
+                    long temps = (new Date()).getTime();
+                    double alea = Math.random();
+
+                    RequeteDigest req = new RequeteDigest(md.digest(),textFieldUtilisateur.getText(),temps,alea);
+                    oos.writeObject(req);
 
                     String reponse = (String) ois.readObject();
                     System.out.println("reponse : ");
@@ -52,7 +68,7 @@ public class App_ConnexionClientPaiement extends JDialog {
                         App_ConnexionClientPaiement.super.dispose();
                     }
 
-                } catch (IOException | ClassNotFoundException ex) {
+                } catch (IOException | ClassNotFoundException | NoSuchAlgorithmException | NoSuchProviderException ex) {
                     ex.printStackTrace();
                 }
             }
