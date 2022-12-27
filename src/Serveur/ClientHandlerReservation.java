@@ -139,16 +139,18 @@ public class ClientHandlerReservation extends Thread {
                                         }
                                         //INITIALISATION DES VALEURS A METTRE DANS LA BD
                                         BR.setTable("reseractcha");
-                                        BR.setColumns("`PersRef`,`type`,`numChambre`,`typeCha`,`nbMaxCha`,`nbNuit`,`dateDeb`,`prixCha`,`paye`");
-                                        BR.setValues("'"+reservationChambre.get_persRef()+"'"+","
-                                                +"'Chambre'"+","
-                                                +chambreAResa.get_numeroChambre()+","+"'"
-                                                +reservationChambre.get_typeCha()+"'"+","
-                                                +reservationChambre.get_nbMaxCha()+","
-                                                +reservationChambre.get_nbNuits()+","+"'"
-                                                +reservationChambre.get_date()+"'"+","
-                                                +chambreAResa.get_prixHTVA()+","
-                                                +false);
+                                        BR.setColumns("`PersRef`,`type`,`numChambre`,`typeCha`,`nbMaxCha`,`nbNuit`,`dateDeb`,`prixCha`,`paye`,`dejaPaye`");
+                                        BR.setValues("'"
+                                            +reservationChambre.get_persRef()+"'"+","
+                                            +"'Chambre'"+","
+                                            +chambreAResa.get_numeroChambre()+","+"'"
+                                            +reservationChambre.get_typeCha()+"'"+","
+                                            +reservationChambre.get_nbMaxCha()+","
+                                            +reservationChambre.get_nbNuits()+","+"'"
+                                            +reservationChambre.get_date()+"'"+","
+                                            +chambreAResa.get_prixHTVA()+","
+                                            +false+","
+                                            +0);
                                         //AJOUT A LA BD
                                         System.out.println(reservationChambre.get_id());
                                         System.out.println(reservationChambre.get_numChambre());
@@ -200,6 +202,7 @@ public class ClientHandlerReservation extends Thread {
                                         reservation.set_prixCha(resultatPROOM.getFloat("prixCha"));
                                         reservation.set_persRef(resultatPROOM.getString("PersRef"));
                                         reservation.set_paye(resultatPROOM.getBoolean("paye"));
+                                        reservation.set_dejaPaye(resultatPROOM.getFloat("dejaPaye"));
 
                                         oos.writeObject(reservation);
                                     }
@@ -209,14 +212,13 @@ public class ClientHandlerReservation extends Thread {
                                     System.out.println("paye = " + paye);
                                     if(paye.equals("OK")) {
                                         String id = (String) ois.readObject();
+                                        float paiement = (Float) ois.readObject();
                                         System.out.println("id = " + id);
-                                        System.out.println("sPaiement = " + this.sPaiement);
+                                        System.out.println("paiement = " + paiement);
+
                                         //penser à inverser les flux si erreur de création
                                         this.oosPaiement = new ObjectOutputStream(this.sPaiement.getOutputStream());
                                         this.oisPaiement = new ObjectInputStream(this.sPaiement.getInputStream());
-
-                                        System.out.println("oisPaiement = " + this.oisPaiement);
-                                        System.out.println("oosPaiement = " + this.oosPaiement);
 
                                         oosPaiement.writeObject("SERVEURRESA");
 
@@ -228,6 +230,7 @@ public class ClientHandlerReservation extends Thread {
                                             oosPaiement.writeObject("PROOMPAY");
                                             //envoie id
                                             oosPaiement.writeObject(id);
+                                            oosPaiement.writeObject(paiement);
                                             String confirmationPaiement = (String) oisPaiement.readObject();
                                             System.out.println("Paiement :" + confirmationPaiement);
 
@@ -283,6 +286,8 @@ public class ClientHandlerReservation extends Thread {
                                         reservation.set_persRef(resultat.getString("PersRef"));
                                         reservation.set_date(resultat.getString("dateDeb"));
                                         reservation.set_paye(resultat.getBoolean("paye"));
+                                        reservation.set_dejaPaye(resultat.getFloat("dejaPaye"));
+                                        reservation.set_prixCha(resultat.getFloat("prixCha"));
 
                                         oos.writeObject(reservation);
                                     }

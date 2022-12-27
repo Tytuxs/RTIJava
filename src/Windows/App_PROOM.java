@@ -9,7 +9,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
 import java.net.Socket;
-import java.util.StringTokenizer;
 import java.util.Vector;
 
 public class App_PROOM extends JDialog {
@@ -20,6 +19,7 @@ public class App_PROOM extends JDialog {
     private JTextField textFieldNomClient;
     private JButton buttonPayer;
     private JButton buttonQuitter;
+    private JTextField textFieldPaiement;
 
     DefaultTableModel JTable_Affichage = new DefaultTableModel();
 
@@ -32,13 +32,14 @@ public class App_PROOM extends JDialog {
                     ReserActCha reservation;
                     oos.writeObject("PROOM");
                     JTable_Affichage.setRowCount(0);
-                    JTable_Affichage.setColumnCount(5);
+                    JTable_Affichage.setColumnCount(6);
                     Vector V = new Vector<>();
                     V.add("id");
                     V.add("Numero Chambre");
                     V.add("Prix de la chambre");
                     V.add("Personne référée");
                     V.add("Payé ?");
+                    V.add("Prix restant");
                     JTable_Affichage.addRow(V);
                     String nomClient = textFieldNomClient.getText();
                     oos.writeObject(nomClient);
@@ -54,13 +55,18 @@ public class App_PROOM extends JDialog {
                             v.add(reservation.get_numChambre());
                             v.add(reservation.get_prixCha());
                             v.add(reservation.get_persRef());
-                            boolean paye = reservation.is_paye();
-                            if(!paye) {
-                                v.add("Non");
+                            float restant = reservation.get_prixCha() - reservation.get_dejaPaye();
+                            if(restant <= 0) {
+                                restant=0;
                             }
-                            else {
+                            if(restant==0) {
                                 v.add("Oui");
                             }
+                            else {
+                                v.add("Non");
+                            }
+
+                            v.add(restant);
                             JTable_Affichage.addRow(v);
                         }
                     }
@@ -78,7 +84,9 @@ public class App_PROOM extends JDialog {
                 try {
                     oos.writeObject("OK");
                     String id = table1.getValueAt(table1.getSelectedRow(), 0).toString();
+                    float paiement = Float.parseFloat(textFieldPaiement.getText());
                     oos.writeObject(id);
+                    oos.writeObject(paiement);
                     String confirmation = (String) ois.readObject();
                     if (confirmation.equals("OK")) {
                         JOptionPane.showMessageDialog(null, "Paiement fait", "Alert", JOptionPane.WARNING_MESSAGE);
@@ -89,6 +97,18 @@ public class App_PROOM extends JDialog {
                     ex.printStackTrace();
                 }
                 App_PROOM.super.dispose();
+            }
+        });
+
+        buttonQuitter.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    oos.writeObject("NOK");
+                    App_PROOM.super.dispose();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
             }
         });
 

@@ -20,62 +20,18 @@ public class App_LROOMS extends JDialog {
 
     DefaultTableModel JTable_Affichage = new DefaultTableModel();
 
-    /*public App_LROOMS(Socket s, DataOutputStream dos, DataInputStream dis) throws IOException {
-
-        dos.writeUTF("LROOMS");
-        JTable_Affichage.setRowCount(0);
-        JTable_Affichage.setColumnCount(3);
-        Vector V = new Vector<>();
-        V.add("Numero Chambre");
-        V.add("Nom du Client");
-        V.add("Date d'arrivée");
-        JTable_Affichage.addRow(V);
-
-        String message = dis.readUTF();
-        //LECTURE DES MESSAGES RECUS ET BOUCLE JUSQU'AU MESSAGE "FIN"
-        while (true) {
-            message = dis.readUTF();
-            if(message.equals("FIN"))
-                break;
-            System.out.println(message);
-            StringTokenizer st = new StringTokenizer(message, ";");
-            String numChambre = st.nextToken();
-            String nomClient = st.nextToken();
-            String datedeb = st.nextToken();
-            Vector v = new Vector();
-            v.add(numChambre);
-            v.add(nomClient);
-            v.add(datedeb);
-            JTable_Affichage.addRow(v);
-        }
-
-        table1.setModel(JTable_Affichage);
-
-        buttonQuitter.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // closing resources
-                App_LROOMS.super.dispose();
-            }
-        });
-        
-        this.setMinimumSize(new Dimension(1500, 600));
-        this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        this.setContentPane(LROOMSPanel);
-        this.pack();
-    }*/
-
     public App_LROOMS(Socket s, ObjectOutputStream dos, ObjectInputStream dis) throws IOException, ClassNotFoundException {
 
         dos.writeObject("LROOMS");
         JTable_Affichage.setRowCount(0);
-        JTable_Affichage.setColumnCount(5);
+        JTable_Affichage.setColumnCount(6);
         Vector V = new Vector<>();
         V.add("id Réservation");
         V.add("Numero Chambre");
         V.add("Nom du Client");
         V.add("Date d'arrivée");
         V.add("paye ?");
+        V.add("prix restant");
         JTable_Affichage.addRow(V);
 
         ReserActCha reservation;
@@ -89,13 +45,21 @@ public class App_LROOMS extends JDialog {
             v.add(reservation.get_numChambre());
             v.add(reservation.get_persRef());
             v.add(reservation.get_date());
-            boolean paye = reservation.is_paye();
-            if(!paye) {
-                v.add("Non");
+            System.out.println("prixCha = " + reservation.get_prixCha());
+            System.out.println("dejaPaye = " + reservation.get_dejaPaye());
+            float restant = reservation.get_prixCha() - reservation.get_dejaPaye();
+            System.out.println("restant = " + restant);
+            if(restant <= 0) {
+                restant=0;
             }
-            else {
+            if(restant==0) {
                 v.add("Oui");
             }
+            else {
+                v.add("Non");
+            }
+
+            v.add(restant);
             JTable_Affichage.addRow(v);
         }
 

@@ -14,35 +14,6 @@ public class App_CROOM extends JDialog {
     private JButton buttonSupprimer;
     private JLabel labelExplication;
 
-    /*public App_CROOM(Socket s, DataOutputStream dos, DataInputStream dis) {
-
-        buttonSupprimer.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    if (!textFieldID.equals("")) {
-                        dos.writeUTF("CROOM");
-                        //DEMANDE AU CLIENT L'ID POUR SUPPRIMER LA RESEVATION CORRESPONDANTE
-                        System.out.println("id de la reservation : ");
-                        String id = textFieldID.getText();
-                        dos.writeUTF(id);
-                        JOptionPane.showMessageDialog(null, dis.readUTF(), "Alert", JOptionPane.WARNING_MESSAGE);
-                    } else {
-                        labelExplication.setText("Veuillez entrer un id");
-                    }
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
-                App_CROOM.super.dispose();
-            }
-        });
-
-        this.setMinimumSize(new Dimension(600,600));
-        this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        this.setContentPane(panelCROOM);
-        this.pack();
-    }*/
-
     public App_CROOM(Socket s, ObjectOutputStream dos, ObjectInputStream dis, String requete) {
 
         buttonSupprimer.addActionListener(new ActionListener() {

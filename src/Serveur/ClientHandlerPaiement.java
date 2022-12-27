@@ -14,8 +14,8 @@ import java.sql.SQLException;
 public class ClientHandlerPaiement extends Thread {
     private final SourceTaches tachesAExecuter;
     private Socket tacheEnCours;
-    private ObjectInputStream ois;
-    private ObjectOutputStream oos;
+    private ObjectInputStream oisReservation;
+    private ObjectOutputStream oosReservation;
     BD_Bean BP;
 
     public ClientHandlerPaiement(SourceTaches tachesAFaire, BD_Bean BP) {
@@ -39,10 +39,10 @@ public class ClientHandlerPaiement extends Thread {
             System.out.println("ServeurPaiement : Boucle connexion");
             try {
                 //creation des flux
-                ois = new ObjectInputStream(tacheEnCours.getInputStream());
-                oos = new ObjectOutputStream(tacheEnCours.getOutputStream());
+                oisReservation = new ObjectInputStream(tacheEnCours.getInputStream());
+                oosReservation = new ObjectOutputStream(tacheEnCours.getOutputStream());
                 // RECEPTION DE LA REPONSE DU CLIENT
-                received = (String) ois.readObject();
+                received = (String) oisReservation.readObject();
                 System.out.println("received = " + received);
 
                 if(received.equals("Exit"))
@@ -55,7 +55,7 @@ public class ClientHandlerPaiement extends Thread {
 
                 int ok = 0;
                 if(received.equals("LOGIN")) {
-                    Utilisateur user = (Utilisateur) ois.readObject();
+                    Utilisateur user = (Utilisateur) oisReservation.readObject();
 
                     ResultSet rs = this.BP.Login();
                     while (rs.next()) {
@@ -76,55 +76,67 @@ public class ClientHandlerPaiement extends Thread {
                 }
 
                 if(ok == 1) {
-                    oos.writeObject("OK");
+                    oosReservation.writeObject("OK");
 
                     int continuer = 1;
                     while (continuer == 1) {
-                        //reset a chaque requete pour eviter les erreurs entre les différentes requete d'un meme lance l'une à la suite de l'autre s
+                        //reset a chaque requete pour eviter les erreurs entre les différentes requete d'un meme lance l'une à la suite de l'autre
                         BP.setTable("");
                         BP.setColumns("");
                         BP.setValues("");
 
                         System.out.println("Boucle continuer");
                         //ATTENTE DE LA REQUÊTE
-                        String requete = (String) ois.readObject();
+                        String requete = (String) oisReservation.readObject();
                         System.out.println("Requete recue : " + requete);
                         switch (requete) {
                             case "PROOMPAY" :
-                                String id = (String) ois.readObject();
+                                String id = (String) oisReservation.readObject();
+                                float paiement = (Float) oisReservation.readObject();
+
                                 BP.setTable("ReserActCha");
                                 BP.setCondition("id = " + id);
-                                BP.setValues("paye = true");
+
+                                ResultSet rs = BP.Select(false);
+                                float dejaPaye = 0;
+
+                                while (rs.next()) {
+                                    dejaPaye = rs.getFloat("dejaPaye");
+                                }
+
+                                paiement += dejaPaye;
+
+                                BP.setValues("dejaPaye = " + paiement);
                                 System.out.println("avant Update");
                                 int confirmation = BP.Update();
                                 System.out.println("apres Update");
                                 if(confirmation==1) {
-                                    oos.writeObject("OK");
+                                    oosReservation.writeObject("OK");
                                 }
                                 else {
-                                    oos.writeObject("NOK");
+                                    oosReservation.writeObject("NOK");
                                 }
                                 break;
                             case "LOGOUT" :
-                                oos.writeObject("Au revoir");
+                                oosReservation.writeObject("Au revoir");
                                 continuer = 0;
                                 break;
 
                             case "Exit" :
-                                oos.writeObject("Au revoir");
+                                oosReservation.writeObject("Au revoir");
                                 continuer = 0;
                                 connexion = 0;
                                 break;
 
                             default:
-                                oos.writeObject("ERROR : Invalid input");
+                                oosReservation.writeObject("ERROR : Invalid input");
                                 break;
                         }
                     }
                 }
                 else {
                     System.out.println("NOK");
-                    oos.writeObject("NOK");
+                    oosReservation.writeObject("NOK");
                 }
             }
             catch (IOException | SQLException | ClassNotFoundException e) {
@@ -136,8 +148,8 @@ public class ClientHandlerPaiement extends Thread {
         {
             System.out.println("Fermeture des ressources");
             this.tacheEnCours.close();
-            this.ois.close();
-            this.oos.close();
+            this.oisReservation.close();
+            this.oosReservation.close();
 
         }catch(IOException e){
             e.printStackTrace();
