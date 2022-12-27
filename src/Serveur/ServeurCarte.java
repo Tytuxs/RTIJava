@@ -2,7 +2,6 @@ package Serveur;
 
 import Classe.TachesCarte;
 import database.facility.BD_Bean;
-import database.facility.BeanPaiement;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -19,7 +18,7 @@ public class ServeurCarte extends Thread {
         System.out.println("Avant initialisation de TachesCarte");
         tachesAFaire = new TachesCarte();
         System.out.println("Apres initialisation de TachesCarte");
-        BC = new BeanPaiement("jdbc:mysql://localhost:3306/bd_holidays","root","pwdmysql");
+        BC = new BD_Bean("jdbc:mysql://localhost:3306/bd_holidays","root","pwdmysql");
     }
 
     public void setPort(int PORT) { this.PORT_CARD = PORT; }

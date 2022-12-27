@@ -47,7 +47,6 @@ public class ClientHandlerCarte extends Thread {
                 if (received.equals("Exit")) {
                     System.out.println("Client " + this.tacheEnCours + " quitte...");
                     System.out.println("Fermeture connexion.");
-                    System.out.println("Connexion fermée");
                     connexion = 0;
                 }
 
@@ -76,6 +75,9 @@ public class ClientHandlerCarte extends Thread {
                 else {
                     oos.writeObject("NOK");
                 }
+                oos.close();
+                ois.close();
+                tacheEnCours.close();
             } catch (IOException | ClassNotFoundException | InterruptedException | SQLException e) {
                 e.printStackTrace();
             }

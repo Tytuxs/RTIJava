@@ -20,14 +20,14 @@ public class App_ConnexionClientPaiement extends JDialog {
     private JTextField textFieldUtilisateur;
     private JButton buttonQuitter;
     private JTextField textFieldMotDePasse;
-    private static String codeProvider = "BC";
+    //private static String codeProvider = "BC";
 
     public App_ConnexionClientPaiement() throws IOException {
 
 
         InetAddress ip = InetAddress.getByName("localhost");
 
-        Socket s = new Socket(ip, 5056);
+        Socket s = new Socket(ip, 7000);
         System.out.println(s);
         ObjectOutputStream oos = new ObjectOutputStream(s.getOutputStream());
         ObjectInputStream ois = new ObjectInputStream(s.getInputStream());
@@ -37,7 +37,6 @@ public class App_ConnexionClientPaiement extends JDialog {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    MessageDigest md;
                     oos.writeObject("LOGIN");
                     utilisateur.set_nomUser(textFieldUtilisateur.getText());
                     utilisateur.set_password(textFieldMotDePasse.getText());
@@ -48,11 +47,10 @@ public class App_ConnexionClientPaiement extends JDialog {
                     System.out.println("reponse = " + reponse);
                     if (reponse.equals("OK")) {
                         System.out.println("Connexion OK");
-                        App_ReservationClient app_reservation = new App_ReservationClient(s, oos, ois);
-                        app_reservation.setVisible(true);
+                        App_LISTPAY app_listpay = new App_LISTPAY(s, oos, ois);
+                        app_listpay.setVisible(true);
                         App_ConnexionClientPaiement.super.dispose();
                     }
-
 
                 } catch (IOException | ClassNotFoundException ex) {
                     ex.printStackTrace();

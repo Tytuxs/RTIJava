@@ -1,6 +1,7 @@
 package Serveur;
 
 import Classe.Carte;
+import Classe.ReserActCha;
 import Classe.SourceTaches;
 import Classe.Utilisateur;
 import database.facility.BD_Bean;
@@ -91,7 +92,7 @@ public class ClientHandlerPaiement extends Thread {
                         BP.setValues("");
 
                         System.out.println("Boucle continuer");
-                        //ATTENTE DE LA REQUÊTE
+                        //ATTENTE DE LA REQUÊTE du SERVEURRESERVATION ou de APPLIPaiement
                         String requete = (String) oisReservation.readObject();
                         System.out.println("Requete recue : " + requete);
                         switch (requete) {
@@ -147,7 +148,29 @@ public class ClientHandlerPaiement extends Thread {
                                         oosReservation.writeObject("Erreur carte bancaire");
                                     }
                                 }
+                                oisCarte.close();
+                                oosCarte.close();
+                                sCarte.close();
                                 break;
+
+                            case "LISTPAY" :
+                                BP.setTable("Reseractcha");
+                                BP.setCondition("type = 'Chambre' and dejapaye < prixCha");
+                                ResultSet resultatLISTPAY = BP.Select(false);
+                                while (resultatLISTPAY.next()) {
+                                    ReserActCha reservation = new ReserActCha();
+                                    reservation.set_id(resultatLISTPAY.getInt("id"));
+                                    reservation.set_numChambre(resultatLISTPAY.getInt("numChambre"));
+                                    reservation.set_prixCha(resultatLISTPAY.getFloat("prixCha"));
+                                    reservation.set_persRef(resultatLISTPAY.getString("PersRef"));
+                                    reservation.set_dejaPaye(resultatLISTPAY.getFloat("dejaPaye"));
+
+                                    oosReservation.writeObject(reservation);
+                                }
+                                oosReservation.writeObject(null);
+
+                                break;
+
                             case "LOGOUT" :
                                 oosReservation.writeObject("Au revoir");
                                 continuer = 0;
