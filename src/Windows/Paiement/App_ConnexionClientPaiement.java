@@ -9,9 +9,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
@@ -48,14 +46,21 @@ public class App_ConnexionClientPaiement extends JDialog {
                     /*utilisateur.set_nomUser(textFieldUtilisateur.getText());
                     utilisateur.set_password(textFieldMotDePasse.getText());
                     oos.writeObject(utilisateur);*/
+                    long temps = (new Date()).getTime();
+                    double nbAlea = Math.random();
+
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    DataOutputStream bdos = new DataOutputStream(baos);
+                    bdos.writeLong(temps);
+                    bdos.writeDouble(nbAlea);
 
                     MessageDigest md = MessageDigest.getInstance("SHA-1", codeProvider);
                     md.update(textFieldUtilisateur.getText().getBytes());
                     md.update(textFieldMotDePasse.getText().getBytes());
-                    long temps = (new Date()).getTime();
-                    double alea = Math.random();
+                    md.update(baos.toByteArray());
 
-                    RequeteDigest req = new RequeteDigest(md.digest(),textFieldUtilisateur.getText(),temps,alea);
+
+                    RequeteDigest req = new RequeteDigest(md.digest(),textFieldUtilisateur.getText(),temps,nbAlea);
                     oos.writeObject(req);
 
                     String reponse = (String) ois.readObject();

@@ -7,9 +7,7 @@ import ClassesCrypto.RequeteDigest;
 import database.facility.BD_Bean;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.security.MessageDigest;
@@ -90,9 +88,16 @@ public class ClientHandlerPaiement extends Thread {
 
                         if (user.getUtilisateur().equals(userbd)) {
                             //verif de pwdbd en creant un digest
+                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                            DataOutputStream bdos = new DataOutputStream(baos);
+                            bdos.writeLong(user.getTemps());
+                            bdos.writeDouble(user.getNbAlea());
+
                             MessageDigest md = MessageDigest.getInstance("SHA-1", codeProvider);
                             md.update(user.getUtilisateur().getBytes());
                             md.update(pwdbd.getBytes());
+                            md.update(baos.toByteArray());
+
                             byte[] mdLocal = md.digest();
                             if(MessageDigest.isEqual(user.getMdp(),mdLocal)) {
                                 ok = 1;
