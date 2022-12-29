@@ -30,7 +30,9 @@
             <preferred-size width="150" height="-1"/>
           </grid>
         </constraints>
-        <properties/>
+        <properties>
+          <text value="Oli"/>
+        </properties>
       </component>
       <component id="7f0c7" class="javax.swing.JTextField" binding="textFieldMotDePasse">
         <constraints>
@@ -38,7 +40,9 @@
             <preferred-size width="150" height="-1"/>
           </grid>
         </constraints>
-        <properties/>
+        <properties>
+          <text value="4653"/>
+        </properties>
       </component>
       <vspacer id="37bd">
         <constraints>

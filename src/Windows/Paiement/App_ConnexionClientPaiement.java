@@ -2,9 +2,11 @@ package Windows.Paiement;
 
 import Classe.Utilisateur;
 import ClassesCrypto.RequeteDigest;
-import Windows.App_ReservationClient;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -12,11 +14,8 @@ import java.awt.event.ActionListener;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.Security;
+import java.security.*;
+import java.security.cert.CertificateException;
 import java.util.Date;
 
 public class App_ConnexionClientPaiement extends JDialog {
@@ -74,6 +73,22 @@ public class App_ConnexionClientPaiement extends JDialog {
                     }
 
                 } catch (IOException | ClassNotFoundException | NoSuchAlgorithmException | NoSuchProviderException ex) {
+                    ex.printStackTrace();
+                } catch (NoSuchPaddingException ex) {
+                    ex.printStackTrace();
+                } catch (IllegalBlockSizeException ex) {
+                    ex.printStackTrace();
+                } catch (BadPaddingException ex) {
+                    ex.printStackTrace();
+                } catch (InvalidKeyException ex) {
+                    ex.printStackTrace();
+                } catch (SignatureException ex) {
+                    ex.printStackTrace();
+                } catch (CertificateException ex) {
+                    ex.printStackTrace();
+                } catch (KeyStoreException ex) {
+                    ex.printStackTrace();
+                } catch (UnrecoverableKeyException ex) {
                     ex.printStackTrace();
                 }
             }
