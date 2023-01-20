@@ -136,8 +136,12 @@ public class ClientHandlerPaiement extends Thread {
                         ksv = KeyStore.getInstance("PKCS12", codeProvider);
                         ksv.load(new FileInputStream("C:\\Users\\olico\\Desktop\\Bloc 3 2022-2023\\RTI\\Keystore\\carteid_keystore.p12"),
                                 "olivier".toCharArray());
+                        System.out.println("Recuperation de la clé Privée");
+                        PrivateKey key= (PrivateKey) ksv.getKey("serveur","olivier".toCharArray());
                         System.out.println("Recuperation du certificat");
-                        X509Certificate certif = (X509Certificate)ksv.getCertificate("olivier2");
+                        X509Certificate certif = (X509Certificate)ksv.getCertificate("clientcert");
+
+
 
                         System.out.println("Recuperation de la cle publique");
                         PublicKey clePublique = certif.getPublicKey();
@@ -163,18 +167,18 @@ public class ClientHandlerPaiement extends Thread {
                         oosReservation.writeObject(reponse);
                         //test envoie clé symétrique avec cryptage asymetrique
                         // Génération des clés publique/privée du serveur
-                        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+                        /*KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
                         keyGen.initialize(2048);
                         KeyPair serverKeys = keyGen.generateKeyPair();
 
                         // Le serveur reçoit la clé publique du client et envoie sa clé publique en retour
                         PublicKey clientPublicKey = (PublicKey) oisReservation.readObject();
-                        oosReservation.writeObject(serverKeys.getPublic());
+                        oosReservation.writeObject(serverKeys.getPublic());*/
 
                         // Le serveur déchiffre la clé secrète avec sa clé privée
                         byte[] encryptedKey = (byte[]) oisReservation.readObject();
                         Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
-                        cipher.init(Cipher.DECRYPT_MODE, serverKeys.getPrivate());
+                        cipher.init(Cipher.DECRYPT_MODE, key);
                         byte[] decryptedKey = cipher.doFinal(encryptedKey);
                         secretKey = new SecretKeySpec(decryptedKey, "AES");
                     }
@@ -274,6 +278,56 @@ public class ClientHandlerPaiement extends Thread {
 
                                 break;
 
+                            case "ROOMPAY" :
+                                //verification de la carteBancaire
+                                InetAddress IP = InetAddress.getByName("localhost");
+                                sCarte = new Socket(IP, 8000);
+                                System.out.println("sPaiement = " + sCarte);
+                                System.out.println("Connexion au ServeurCarte avec le ServeurPaiement");
+
+                                //penser à inverser les flux si erreur de création
+                                this.oosCarte = new ObjectOutputStream(this.sCarte.getOutputStream());
+                                this.oisCarte = new ObjectInputStream(this.sCarte.getInputStream());
+
+                                String ID = (String) oisReservation.readObject();
+                                Carte verifcarte = (Carte)oisReservation.readObject();
+                                float paie = verifcarte.getPaiement();
+
+                                oosCarte.writeObject("VERIFICATION");
+                                if(oisCarte.readObject().equals("OK")) {
+                                    oosCarte.writeObject(verifcarte);
+                                    String confirmation = (String) oisCarte.readObject();
+                                    if (confirmation.equals("OK")) {
+                                        BP.setTable("ReserActCha");
+                                        BP.setCondition("id = " + ID);
+
+                                        ResultSet rs = BP.Select(false);
+                                        float dejaPaye = 0;
+
+                                        while (rs.next()) {
+                                            dejaPaye = rs.getFloat("dejaPaye");
+                                        }
+
+                                        paie += dejaPaye;
+
+                                        BP.setValues("dejaPaye = " + paie);
+                                        System.out.println("avant Update");
+                                        int confir = BP.Update();
+                                        System.out.println("apres Update");
+                                        if (confir == 1) {
+                                            oosReservation.writeObject("OK");
+                                        } else {
+                                            oosReservation.writeObject("NOK");
+                                        }
+                                    } else {
+                                        oosReservation.writeObject("Erreur carte bancaire");
+                                    }
+                                }
+                                oisCarte.close();
+                                oosCarte.close();
+                                sCarte.close();
+                                break;
+
                             case "LOGOUT" :
                                 //oosReservation.writeObject("Au revoir");
                                 continuer = 0;
@@ -309,6 +363,8 @@ public class ClientHandlerPaiement extends Thread {
             } catch (CertificateException e) {
                 e.printStackTrace();
             } catch (KeyStoreException e) {
+                e.printStackTrace();
+            } catch (UnrecoverableKeyException e) {
                 e.printStackTrace();
             }
         }

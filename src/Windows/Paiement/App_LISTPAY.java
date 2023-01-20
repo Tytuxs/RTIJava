@@ -13,6 +13,7 @@ import java.io.*;
 import java.net.Socket;
 import java.security.*;
 import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.Vector;
 
 public class App_LISTPAY extends JDialog {
@@ -25,18 +26,25 @@ public class App_LISTPAY extends JDialog {
     private Cipher cipherSymetrique;
     DefaultTableModel JTable_Affichage = new DefaultTableModel();
 
-    public App_LISTPAY(Socket s, ObjectOutputStream oos, ObjectInputStream ois) throws IOException, ClassNotFoundException, NoSuchPaddingException, NoSuchAlgorithmException, NoSuchProviderException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, SignatureException, CertificateException, KeyStoreException, UnrecoverableKeyException {
+    public App_LISTPAY(Socket s, ObjectOutputStream oos, ObjectInputStream ois, Socket sUrgence, ObjectOutputStream oosUrgence, ObjectInputStream oisUrgence) throws IOException, ClassNotFoundException, NoSuchPaddingException, NoSuchAlgorithmException, NoSuchProviderException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, SignatureException, CertificateException, KeyStoreException, UnrecoverableKeyException {
+
+        AttenteUrgent threadUrgent = new AttenteUrgent(sUrgence, oosUrgence, oisUrgence);
+        threadUrgent.start();
 
         KeyStore ks = null;
         ks = KeyStore.getInstance("JKS");
         ks.load(new FileInputStream("C:\\Users\\olico\\Desktop\\Bloc 3 2022-2023\\RTI\\Keystore\\java_keystore.jks"), "olivier".toCharArray());
+
+        X509Certificate certif = (X509Certificate)ks.getCertificate("serveurcert");
+        System.out.println("Recuperation de la cle publique");
+        PublicKey clePublique = certif.getPublicKey();
 
         String Message = "Code du jour : CVCCDMMM - bye";
         System.out.println("Message a envoyer au serveur : " + Message);
         byte[] message = Message.getBytes();
         PrivateKey clePrivee;
         System.out.println("Recuperation de la cle privee");
-        clePrivee = (PrivateKey) ks.getKey("olivier", "olivier".toCharArray());
+        clePrivee = (PrivateKey) ks.getKey("client", "olivier".toCharArray());
         System.out.println(" *** Cle privee recuperee = " + clePrivee.toString());
 
         System.out.println("Instanciation de la signature");
@@ -58,26 +66,26 @@ public class App_LISTPAY extends JDialog {
         System.out.println("messageRetour = " + messageRetour);
 
         // Génération des clés publique/privée du client
-        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+        /*KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
         keyGen.initialize(2048);
         KeyPair clientKeys = keyGen.generateKeyPair();
 
         // Le client envoie sa clé publique au serveur et reçoit celle du serveur
         oos.writeObject(clientKeys.getPublic());
-        PublicKey serverPublicKey = (PublicKey) ois.readObject();
+        PublicKey serverPublicKey = (PublicKey) ois.readObject();*/
 
         // Le client génère une clé secrète aléatoire et la chiffre avec la clé publique du serveur
         KeyGenerator keyGen2 = KeyGenerator.getInstance("AES");
         keyGen2.init(256);
         SecretKey secretKey = keyGen2.generateKey();
         Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
-        cipher.init(Cipher.ENCRYPT_MODE, serverPublicKey);
+        cipher.init(Cipher.ENCRYPT_MODE, clePublique);
         byte[] encryptedKey = cipher.doFinal(secretKey.getEncoded());
 
         // Le client envoie la clé secrète chiffrée au serveur
         oos.writeObject(encryptedKey);
 
-        //reception message test du serveur, donc decryptage
+        //envoie requete LISTPAY
         cipherSymetrique = Cipher.getInstance("AES/ECB/PKCS5Padding");
         cipherSymetrique.init(Cipher.ENCRYPT_MODE, secretKey);
         byte[] plaintext = "LISTPAY".getBytes();
@@ -94,8 +102,6 @@ public class App_LISTPAY extends JDialog {
         V.add("Personne référée");
         V.add("Prix restant");
         JTable_Affichage.addRow(V);
-
-        //oos.writeObject("LISTPAY");
 
         while (true) {
             ReserActCha reservation = (ReserActCha) ois.readObject();
@@ -121,7 +127,72 @@ public class App_LISTPAY extends JDialog {
         buttonValider.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                System.out.println("element selectionne = " + tableClients.getSelectedRow());
+                if(tableClients.getSelectedRow() == -1) {
+                    JOptionPane.showMessageDialog(null, "Selectionner une ligne du tableau", "Alert", JOptionPane.WARNING_MESSAGE);
+                }
+                else {
+                    try {
+                        App_ROOMPAY app_roompay = new App_ROOMPAY(ois, oos, secretKey,tableClients.getValueAt(tableClients.getSelectedRow(), 0).toString());
+                        app_roompay.setModal(true);
+                        app_roompay.setVisible(true);
+                        System.out.println("OKOKOKOKOKOKOKOKOK");
 
+                        //envoie requete LISTPAY pour mettre a jour la table
+                        cipherSymetrique = Cipher.getInstance("AES/ECB/PKCS5Padding");
+                        cipherSymetrique.init(Cipher.ENCRYPT_MODE, secretKey);
+                        byte[] plaintext = "LISTPAY".getBytes();
+                        byte[] ciphertext = cipherSymetrique.doFinal(plaintext);
+                        oos.writeObject(ciphertext);
+
+
+                        JTable_Affichage.setRowCount(0);
+                        JTable_Affichage.setColumnCount(5);
+                        Vector V = new Vector<>();
+                        V.add("id");
+                        V.add("Numero Chambre");
+                        V.add("Prix de la chambre");
+                        V.add("Personne référée");
+                        V.add("Prix restant");
+                        JTable_Affichage.addRow(V);
+
+                        while (true) {
+                            ReserActCha reservation = (ReserActCha) ois.readObject();
+                            if(reservation==null)
+                                break;
+                            else {
+                                Vector v = new Vector();
+                                v.add(reservation.get_id());
+                                v.add(reservation.get_numChambre());
+                                v.add(reservation.get_prixCha());
+                                v.add(reservation.get_persRef());
+                                float restant = reservation.get_prixCha() - reservation.get_dejaPaye();
+                                if(restant <= 0) {
+                                    restant=0;
+                                }
+                                v.add(restant);
+                                JTable_Affichage.addRow(v);
+                            }
+                        }
+
+                        tableClients.setModel(JTable_Affichage);
+                    } catch (NoSuchAlgorithmException ex) {
+                        ex.printStackTrace();
+                    } catch (NoSuchPaddingException ex) {
+                        ex.printStackTrace();
+                    } catch (IllegalBlockSizeException ex) {
+                        ex.printStackTrace();
+                    } catch (BadPaddingException ex) {
+                        ex.printStackTrace();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    } catch (InvalidKeyException ex) {
+                        ex.printStackTrace();
+                    } catch (ClassNotFoundException ex) {
+                        ex.printStackTrace();
+                    }
+
+                }
             }
         });
 
@@ -136,6 +207,10 @@ public class App_LISTPAY extends JDialog {
                     ois.close();
                     oos.close();
                     s.close();
+                    oosUrgence.close();
+                    oisUrgence.close();
+                    sUrgence.close();
+                    App_LISTPAY.super.dispose();
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 } catch (IllegalBlockSizeException ex) {
@@ -145,7 +220,6 @@ public class App_LISTPAY extends JDialog {
                 } catch (InvalidKeyException ex) {
                     ex.printStackTrace();
                 }
-                App_LISTPAY.super.dispose();
             }
         });
 

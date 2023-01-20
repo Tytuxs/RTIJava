@@ -6,6 +6,15 @@ public class Carte implements Serializable {
     private String _numeroCarte;
     private String _nomClient;
     private String _mdp;
+    private int paiement;
+
+    public int getPaiement() {
+        return paiement;
+    }
+
+    public void setPaiement(int paiement) {
+        this.paiement = paiement;
+    }
 
     public String get_numeroCarte() {
         return _numeroCarte;

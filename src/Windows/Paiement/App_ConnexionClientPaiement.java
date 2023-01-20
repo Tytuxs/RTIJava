@@ -37,6 +37,11 @@ public class App_ConnexionClientPaiement extends JDialog {
         ObjectInputStream ois = new ObjectInputStream(s.getInputStream());
         Utilisateur utilisateur = new Utilisateur();
 
+        Socket sUrgence = new Socket(ip, 9001);
+        System.out.println(s);
+        ObjectOutputStream oosUrgence = new ObjectOutputStream(sUrgence.getOutputStream());
+        ObjectInputStream oisUrgence = new ObjectInputStream(sUrgence.getInputStream());
+
         buttonConnexion.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -67,7 +72,7 @@ public class App_ConnexionClientPaiement extends JDialog {
                     System.out.println("reponse = " + reponse);
                     if (reponse.equals("OK")) {
                         System.out.println("Connexion OK");
-                        App_LISTPAY app_listpay = new App_LISTPAY(s, oos, ois);
+                        App_LISTPAY app_listpay = new App_LISTPAY(s, oos, ois, sUrgence, oosUrgence, oisUrgence);
                         app_listpay.setVisible(true);
                         App_ConnexionClientPaiement.super.dispose();
                     }
