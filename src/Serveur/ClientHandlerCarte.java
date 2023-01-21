@@ -4,10 +4,15 @@ import Classe.Carte;
 import Classe.SourceTaches;
 import database.facility.BD_Bean;
 
+import javax.net.ssl.*;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.InetAddress;
 import java.net.Socket;
+import java.security.*;
+import java.security.cert.CertificateException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -66,7 +71,40 @@ public class ClientHandlerCarte extends Thread {
                     }
 
                     if (compteur == 1) {
-                        oos.writeObject("OK");
+                        //contacter serveurBanque en SSL/TLS
+                        SSLSocket SslSocket = null;
+                        ObjectInputStream oisBanque=null; ObjectOutputStream oosBanque=null;
+                        KeyStore ServerKs = KeyStore.getInstance("JKS");
+                        String FICHIER_KEYSTORE = "C:\\Users\\olico\\Desktop\\Bloc 3 2022-2023\\Complément réseau\\keystore\\clientBanqueKeystore.jks";
+                        char[] PASSWD_KEYSTORE = "olivier".toCharArray();
+                        FileInputStream ServerFK = new FileInputStream(FICHIER_KEYSTORE);
+                        ServerKs.load(ServerFK, PASSWD_KEYSTORE);
+                        // 2. Contexte
+                        SSLContext SslC = SSLContext.getInstance("TLSv1.2");
+                        KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
+                        char[] PASSWD_KEY = "olivier".toCharArray();
+                        kmf.init(ServerKs, PASSWD_KEY);
+                        TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
+                        tmf.init(ServerKs);
+                        SslC.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
+                        // 3. Factory
+                        SSLSocketFactory SslSFac= SslC.getSocketFactory();
+                        // 4. Socket
+                        SslSocket = (SSLSocket) SslSFac.createSocket(InetAddress.getLocalHost(),10000);
+                        oosBanque = new ObjectOutputStream(SslSocket.getOutputStream());
+                        oisBanque = new ObjectInputStream (SslSocket.getInputStream());
+
+                        oosBanque.writeObject("VERIFICATION MDP");
+                        oosBanque.writeObject(verifCarte);
+
+                        String confirmation = (String) oisBanque.readObject();
+                        //reponse au clienthandlerpaiement du serveur Paiement
+                        if(confirmation.equals("OK")) {
+                            oos.writeObject("OK");
+                        }
+                        else {
+                            oos.writeObject("NOK");
+                        }
                     }
                     else {
                         oos.writeObject("NOK");
@@ -79,6 +117,16 @@ public class ClientHandlerCarte extends Thread {
                 ois.close();
                 tacheEnCours.close();
             } catch (IOException | ClassNotFoundException | InterruptedException | SQLException e) {
+                e.printStackTrace();
+            } catch (UnrecoverableKeyException e) {
+                e.printStackTrace();
+            } catch (CertificateException e) {
+                e.printStackTrace();
+            } catch (KeyStoreException e) {
+                e.printStackTrace();
+            } catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
+            } catch (KeyManagementException e) {
                 e.printStackTrace();
             }
         }
