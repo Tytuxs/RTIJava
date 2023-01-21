@@ -5,7 +5,9 @@ import Classe.TachesUrgente;
 import database.facility.BD_Bean;
 import database.facility.BeanPaiement;
 
+import javax.net.ssl.SSLServerSocket;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.SQLException;
@@ -18,15 +20,17 @@ public class ServeurPaiement extends Thread {
     private final BD_Bean BP;
     private ArrayList<ClientHandlerUrgence> listThreadClient;
     private ArrayList<Socket> listSocketClient;
-    private int PORT_ADMIN = 9000;
-    private int PORT_URGENCE = 9001;
+    private int PORT_ADMINS;
+    private int PORT_ADMIN;
+    private int PORT_URGENCE;
 
-    public ServeurPaiement(int PORT) throws SQLException {
-        setPort(PORT);
-        System.out.println("Avant initialisation de TachesPaiement");
+    public ServeurPaiement(int PORTPAY, int PORTADMIN, int PORTADMINS, int PORTURGENCE) throws SQLException {
+        setPort(PORTPAY);
+        this.PORT_ADMIN = PORTADMIN;
+        this.PORT_ADMINS = PORTADMINS;
+        this.PORT_URGENCE = PORTURGENCE;
         tachesAFaire = new TachesPaiement();
         urgent = new TachesUrgente();
-        System.out.println("Apres initialisation de TachesPaiement");
         BP = new BeanPaiement("jdbc:mysql://localhost:3306/bd_holidays","root","pwdmysql");
         listThreadClient = new ArrayList<>();
         listSocketClient = new ArrayList<>();
@@ -59,6 +63,10 @@ public class ServeurPaiement extends Thread {
             ssAdmin = new ServerSocket(PORT_ADMIN);
             ClientHandlerAdmin thrAdmin = new ClientHandlerAdmin(ssAdmin, listThreadClient, BP, listSocketClient);
             thrAdmin.start();
+
+            ClientHandlerAdminSecu thrAdmins = new ClientHandlerAdminSecu(PORT_ADMINS, listThreadClient, BP, listSocketClient);
+            thrAdmins.start();
+
         }
         catch (IOException e) {
             e.printStackTrace();

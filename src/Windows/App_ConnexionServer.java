@@ -15,7 +15,7 @@ public class App_ConnexionServer extends JDialog{
 
     private ServeurReservation serveurResaChambre = new ServeurReservation(5056);
     private ServeurActivite serveurResaActi = new ServeurActivite(6000);
-    private ServeurPaiement serveurPaiement = new ServeurPaiement(7000);
+    private ServeurPaiement serveurPaiement = new ServeurPaiement(7000, 9000, 9010, 9001);
     private ServeurCarte serveurCarte = new ServeurCarte(8000);
     private ServeurBanque serveurBanque = new ServeurBanque(10000);
 
