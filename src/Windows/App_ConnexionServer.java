@@ -18,6 +18,7 @@ public class App_ConnexionServer extends JDialog{
     private ServeurPaiement serveurPaiement = new ServeurPaiement(7000, 9000, 9010, 9001);
     private ServeurCarte serveurCarte = new ServeurCarte(8000);
     private ServeurBanque serveurBanque = new ServeurBanque(10000);
+    private ServeurIeyhChat serveurChat = new ServeurIeyhChat(11000);
 
     public App_ConnexionServer() throws SQLException {
         button_LancerServeur.addActionListener(new ActionListener() {
@@ -40,8 +41,12 @@ public class App_ConnexionServer extends JDialog{
                 threadCarte.start();
 
                 Thread threadBanque = new Thread(serveurBanque);
-                System.out.println("Lancement du ServeurCarte avec un thread");
+                System.out.println("Lancement du ServeurBanque avec un thread");
                 threadBanque.start();
+
+                Thread threadChat = new Thread(serveurChat);
+                System.out.println("Lancement du ServeurChat avec un thread");
+                threadChat.start();
             }
         });
 
