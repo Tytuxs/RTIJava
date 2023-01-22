@@ -328,6 +328,31 @@ public class ClientHandlerPaiement extends Thread {
                                         System.out.println("apres Update");
                                         if (confir == 1) {
                                             oosReservation.writeObject("OK");
+                                            //envoie num transaction financière crypté
+                                            cipherSymetrique = Cipher.getInstance("AES/ECB/PKCS5Padding");
+                                            byte[] numCrypte = String.valueOf(Math.random()).getBytes();
+                                            System.out.println("num transaction = " + new String(numCrypte));
+                                            cipherSymetrique.init(Cipher.ENCRYPT_MODE, secretKey);
+                                            byte[] requeteNumCrypte = cipherSymetrique.doFinal(numCrypte);
+                                            oosReservation.writeObject(requeteNumCrypte);
+                                            //reception d'un HMAC pour confirmer
+                                            byte[] hmacb = (byte[]) oisReservation.readObject();
+
+                                            Mac hlocal = Mac.getInstance("HMAC-MD5", codeProvider);
+                                            hlocal.init(secretKey);
+                                            System.out.println("Hachage du message");
+                                            hlocal.update(numCrypte);
+                                            hlocal.update(verifcarte.get_nomClient().getBytes());
+                                            System.out.println("Verification des HMACS");
+                                            byte[] hlocalb = hlocal.doFinal();
+
+                                            if(MessageDigest.isEqual(hmacb,hlocalb)) {
+                                                oosReservation.writeObject("OK");
+                                            }
+                                            else {
+                                                oosReservation.writeObject("NOK");
+                                            }
+
                                         } else {
                                             oosReservation.writeObject("NOK");
                                         }

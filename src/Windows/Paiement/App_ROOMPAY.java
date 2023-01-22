@@ -1,6 +1,7 @@
 package Windows.Paiement;
 
 import Classe.Carte;
+import org.bouncycastle.crypto.macs.HMac;
 
 import javax.crypto.*;
 import javax.swing.*;
@@ -12,6 +13,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 
 public class App_ROOMPAY extends JDialog {
 
@@ -68,6 +70,31 @@ public class App_ROOMPAY extends JDialog {
 
                         if(confirmationPaiement.equals("OK")) {
                             JOptionPane.showMessageDialog(null, "Paiment effectué", "Alert", JOptionPane.WARNING_MESSAGE);
+                            //recupération num transaction financière
+                            byte[] numCrypte = (byte[]) ois.readObject();
+                            Cipher cipherSymetrique = Cipher.getInstance("AES/ECB/PKCS5Padding");
+                            cipherSymetrique.init(Cipher.DECRYPT_MODE, secretKey);
+                            byte[] numByte = cipherSymetrique.doFinal(numCrypte);
+                            String num = new String(numByte);
+                            System.out.println("num transaction = " + num);
+
+                            //ecriture du HMAC
+                            Mac hmac = Mac.getInstance("HMAC-MD5", "BC");
+                            hmac.init(secretKey);
+                            System.out.println("Hachage du message");
+                            hmac.update(num.getBytes());
+                            hmac.update(carte.get_nomClient().getBytes());
+                            System.out.println("Generation des bytes");
+                            byte[] hmacb = hmac.doFinal();
+                            oos.writeObject(hmacb);
+
+                            String confirmation = (String) ois.readObject();
+                            if(confirmation.equals("OK")) {
+                                JOptionPane.showMessageDialog(null, "Num transaction OK", "Alert", JOptionPane.WARNING_MESSAGE);
+                            }
+                            else {
+                                JOptionPane.showMessageDialog(null, "Erreur num transaction", "Alert", JOptionPane.WARNING_MESSAGE);
+                            }
                         }
                         else {
                             JOptionPane.showMessageDialog(null, "Erreur paiement", "Alert", JOptionPane.WARNING_MESSAGE);
@@ -77,6 +104,18 @@ public class App_ROOMPAY extends JDialog {
                     } catch (IOException ex) {
                         ex.printStackTrace();
                     } catch (ClassNotFoundException ex) {
+                        ex.printStackTrace();
+                    } catch (NoSuchPaddingException ex) {
+                        ex.printStackTrace();
+                    } catch (IllegalBlockSizeException ex) {
+                        ex.printStackTrace();
+                    } catch (NoSuchAlgorithmException ex) {
+                        ex.printStackTrace();
+                    } catch (BadPaddingException ex) {
+                        ex.printStackTrace();
+                    } catch (InvalidKeyException ex) {
+                        ex.printStackTrace();
+                    } catch (NoSuchProviderException ex) {
                         ex.printStackTrace();
                     }
                 }
