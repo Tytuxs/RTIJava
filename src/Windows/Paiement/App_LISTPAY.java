@@ -35,6 +35,7 @@ public class App_LISTPAY extends JDialog {
         ks = KeyStore.getInstance("JKS");
         ks.load(new FileInputStream("C:\\Users\\olico\\Desktop\\Bloc 3 2022-2023\\RTI\\Keystore\\java_keystore.jks"), "olivier".toCharArray());
 
+        //recuperation du certificat du serveur
         X509Certificate certif = (X509Certificate)ks.getCertificate("serveurcert");
         System.out.println("Recuperation de la cle publique");
         PublicKey clePublique = certif.getPublicKey();
@@ -127,71 +128,75 @@ public class App_LISTPAY extends JDialog {
         buttonValider.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.println("element selectionne = " + tableClients.getSelectedRow());
-                if(tableClients.getSelectedRow() == -1) {
-                    JOptionPane.showMessageDialog(null, "Selectionner une ligne du tableau", "Alert", JOptionPane.WARNING_MESSAGE);
-                }
-                else {
-                    try {
-                        App_ROOMPAY app_roompay = new App_ROOMPAY(ois, oos, secretKey,tableClients.getValueAt(tableClients.getSelectedRow(), 0).toString());
-                        app_roompay.setModal(true);
-                        app_roompay.setVisible(true);
-                        System.out.println("OKOKOKOKOKOKOKOKOK");
+                if (s.isClosed()) {
+                    JOptionPane.showMessageDialog(null, "Erreur de connexion au serveur Paiement", "Alert", JOptionPane.WARNING_MESSAGE);
+                    App_LISTPAY.super.dispose();
+                } else {
+                    System.out.println("element selectionne = " + tableClients.getSelectedRow());
+                    if (tableClients.getSelectedRow() == -1) {
+                        JOptionPane.showMessageDialog(null, "Selectionner une ligne du tableau", "Alert", JOptionPane.WARNING_MESSAGE);
+                    } else {
+                        try {
+                            App_ROOMPAY app_roompay = new App_ROOMPAY(ois, oos, secretKey, tableClients.getValueAt(tableClients.getSelectedRow(), 0).toString());
+                            app_roompay.setModal(true);
+                            app_roompay.setVisible(true);
+                            System.out.println("OKOKOKOKOKOKOKOKOK");
 
-                        //envoie requete LISTPAY pour mettre a jour la table
-                        cipherSymetrique = Cipher.getInstance("AES/ECB/PKCS5Padding");
-                        cipherSymetrique.init(Cipher.ENCRYPT_MODE, secretKey);
-                        byte[] plaintext = "LISTPAY".getBytes();
-                        byte[] ciphertext = cipherSymetrique.doFinal(plaintext);
-                        oos.writeObject(ciphertext);
+                            //envoie requete LISTPAY pour mettre a jour la table
+                            cipherSymetrique = Cipher.getInstance("AES/ECB/PKCS5Padding");
+                            cipherSymetrique.init(Cipher.ENCRYPT_MODE, secretKey);
+                            byte[] plaintext = "LISTPAY".getBytes();
+                            byte[] ciphertext = cipherSymetrique.doFinal(plaintext);
+                            oos.writeObject(ciphertext);
 
 
-                        JTable_Affichage.setRowCount(0);
-                        JTable_Affichage.setColumnCount(5);
-                        Vector V = new Vector<>();
-                        V.add("id");
-                        V.add("Numero Chambre");
-                        V.add("Prix de la chambre");
-                        V.add("Personne référée");
-                        V.add("Prix restant");
-                        JTable_Affichage.addRow(V);
+                            JTable_Affichage.setRowCount(0);
+                            JTable_Affichage.setColumnCount(5);
+                            Vector V = new Vector<>();
+                            V.add("id");
+                            V.add("Numero Chambre");
+                            V.add("Prix de la chambre");
+                            V.add("Personne référée");
+                            V.add("Prix restant");
+                            JTable_Affichage.addRow(V);
 
-                        while (true) {
-                            ReserActCha reservation = (ReserActCha) ois.readObject();
-                            if(reservation==null)
-                                break;
-                            else {
-                                Vector v = new Vector();
-                                v.add(reservation.get_id());
-                                v.add(reservation.get_numChambre());
-                                v.add(reservation.get_prixCha());
-                                v.add(reservation.get_persRef());
-                                float restant = reservation.get_prixCha() - reservation.get_dejaPaye();
-                                if(restant <= 0) {
-                                    restant=0;
+                            while (true) {
+                                ReserActCha reservation = (ReserActCha) ois.readObject();
+                                if (reservation == null)
+                                    break;
+                                else {
+                                    Vector v = new Vector();
+                                    v.add(reservation.get_id());
+                                    v.add(reservation.get_numChambre());
+                                    v.add(reservation.get_prixCha());
+                                    v.add(reservation.get_persRef());
+                                    float restant = reservation.get_prixCha() - reservation.get_dejaPaye();
+                                    if (restant <= 0) {
+                                        restant = 0;
+                                    }
+                                    v.add(restant);
+                                    JTable_Affichage.addRow(v);
                                 }
-                                v.add(restant);
-                                JTable_Affichage.addRow(v);
                             }
+
+                            tableClients.setModel(JTable_Affichage);
+                        } catch (NoSuchAlgorithmException ex) {
+                            ex.printStackTrace();
+                        } catch (NoSuchPaddingException ex) {
+                            ex.printStackTrace();
+                        } catch (IllegalBlockSizeException ex) {
+                            ex.printStackTrace();
+                        } catch (BadPaddingException ex) {
+                            ex.printStackTrace();
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                        } catch (InvalidKeyException ex) {
+                            ex.printStackTrace();
+                        } catch (ClassNotFoundException ex) {
+                            ex.printStackTrace();
                         }
 
-                        tableClients.setModel(JTable_Affichage);
-                    } catch (NoSuchAlgorithmException ex) {
-                        ex.printStackTrace();
-                    } catch (NoSuchPaddingException ex) {
-                        ex.printStackTrace();
-                    } catch (IllegalBlockSizeException ex) {
-                        ex.printStackTrace();
-                    } catch (BadPaddingException ex) {
-                        ex.printStackTrace();
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
-                    } catch (InvalidKeyException ex) {
-                        ex.printStackTrace();
-                    } catch (ClassNotFoundException ex) {
-                        ex.printStackTrace();
                     }
-
                 }
             }
         });
@@ -199,26 +204,31 @@ public class App_LISTPAY extends JDialog {
         buttonQuitter.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                try {
-                    cipherSymetrique.init(Cipher.ENCRYPT_MODE, secretKey);
-                    byte[] plaintext = "Exit".getBytes();
-                    byte[] ciphertext = cipherSymetrique.doFinal(plaintext);
-                    oos.writeObject(ciphertext);
-                    ois.close();
-                    oos.close();
-                    s.close();
-                    oosUrgence.close();
-                    oisUrgence.close();
-                    sUrgence.close();
+                if (s.isClosed()) {
+                    JOptionPane.showMessageDialog(null, "Erreur de connexion au serveur Paiement", "Alert", JOptionPane.WARNING_MESSAGE);
                     App_LISTPAY.super.dispose();
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                } catch (IllegalBlockSizeException ex) {
-                    ex.printStackTrace();
-                } catch (BadPaddingException ex) {
-                    ex.printStackTrace();
-                } catch (InvalidKeyException ex) {
-                    ex.printStackTrace();
+                } else {
+                    try {
+                        cipherSymetrique.init(Cipher.ENCRYPT_MODE, secretKey);
+                        byte[] plaintext = "Exit".getBytes();
+                        byte[] ciphertext = cipherSymetrique.doFinal(plaintext);
+                        oos.writeObject(ciphertext);
+                        ois.close();
+                        oos.close();
+                        s.close();
+                        oosUrgence.close();
+                        oisUrgence.close();
+                        sUrgence.close();
+                        App_LISTPAY.super.dispose();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    } catch (IllegalBlockSizeException ex) {
+                        ex.printStackTrace();
+                    } catch (BadPaddingException ex) {
+                        ex.printStackTrace();
+                    } catch (InvalidKeyException ex) {
+                        ex.printStackTrace();
+                    }
                 }
             }
         });

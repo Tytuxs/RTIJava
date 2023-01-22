@@ -22,9 +22,9 @@ import java.util.Arrays;
 
 public class ClientHandlerPaiement extends Thread {
     private final SourceTaches tachesAExecuter;
-    private Socket tacheEnCours;
-    private ObjectInputStream oisReservation;
-    private ObjectOutputStream oosReservation;
+    private Socket tacheEnCours = null;
+    private ObjectInputStream oisReservation = null;
+    private ObjectOutputStream oosReservation = null;
     private Socket sCarte;
     private ObjectInputStream oisCarte;
     private ObjectOutputStream oosCarte;
@@ -37,6 +37,16 @@ public class ClientHandlerPaiement extends Thread {
     public ClientHandlerPaiement(SourceTaches tachesAFaire, BD_Bean BP) {
         this.tachesAExecuter = tachesAFaire;
         this.BP = BP;
+    }
+
+    public void Stop() throws IOException {
+        if(tacheEnCours != null) {
+            if(this.oosReservation != null)
+                this.oosReservation.close();
+            if(this.oisReservation != null)
+                this.oisReservation.close();
+            this.tacheEnCours.close();
+        }
     }
 
     @Override
@@ -92,7 +102,7 @@ public class ClientHandlerPaiement extends Thread {
                         String pwdbd = rs.getString(3);
 
                         if (user.getUtilisateur().equals(userbd)) {
-                            //verif de pwdbd en creant un digest
+                            //verif de pwdbd en creant un digest local
                             ByteArrayOutputStream baos = new ByteArrayOutputStream();
                             DataOutputStream bdos = new DataOutputStream(baos);
                             bdos.writeLong(user.getTemps());
@@ -104,6 +114,7 @@ public class ClientHandlerPaiement extends Thread {
                             md.update(baos.toByteArray());
 
                             byte[] mdLocal = md.digest();
+                            //comparaison digest recu avec digest local
                             if(MessageDigest.isEqual(user.getMdp(),mdLocal)) {
                                 ok = 1;
                                 ServeurResa = 0;
@@ -125,6 +136,7 @@ public class ClientHandlerPaiement extends Thread {
                     oosReservation.writeObject("OK");//C:\Users\olico\Desktop\Bloc 3 2022-2023\RTI\Keystore
 
                     if(ServeurResa == 0) {
+                        //Cryptage asymetrique avec Keystore(contient clé privé et certificat(cle publique))
                         RequeteSignature reqs = (RequeteSignature) oisReservation.readObject();
                         System.out.println("Message reçu = " + reqs.getMessage());
 
@@ -143,7 +155,7 @@ public class ClientHandlerPaiement extends Thread {
 
 
 
-                        System.out.println("Recuperation de la cle publique");
+                        System.out.println("Recuperation de la cle publique du client");
                         PublicKey clePublique = certif.getPublicKey();
 
                         System.out.println("*** Cle publique recuperee = "+clePublique.toString());
@@ -375,7 +387,9 @@ public class ClientHandlerPaiement extends Thread {
             this.tacheEnCours.close();
             this.oisReservation.close();
             this.oosReservation.close();
-
+            this.oisReservation = null;
+            this.oosReservation = null;
+            this.tacheEnCours = null;
         }catch(IOException e){
             e.printStackTrace();
         }

@@ -18,7 +18,8 @@ public class ServeurPaiement extends Thread {
     private final TachesPaiement tachesAFaire;
     private final TachesUrgente urgent;
     private final BD_Bean BP;
-    private ArrayList<ClientHandlerUrgence> listThreadClient;
+    private ArrayList<ClientHandlerUrgence> listThreadClientUrgent;
+    private ArrayList<ClientHandlerPaiement> listThreadClientPaiement;
     private ArrayList<Socket> listSocketClient;
     private int PORT_ADMINS;
     private int PORT_ADMIN;
@@ -32,7 +33,8 @@ public class ServeurPaiement extends Thread {
         tachesAFaire = new TachesPaiement();
         urgent = new TachesUrgente();
         BP = new BeanPaiement("jdbc:mysql://localhost:3306/bd_holidays","root","pwdmysql");
-        listThreadClient = new ArrayList<>();
+        listThreadClientUrgent = new ArrayList<>();
+        listThreadClientPaiement = new ArrayList<>();
         listSocketClient = new ArrayList<>();
     }
 
@@ -52,19 +54,20 @@ public class ServeurPaiement extends Thread {
             for(int i=0; i<3;i++) {
                 ClientHandlerPaiement ThrClient = new ClientHandlerPaiement(tachesAFaire, BP);
                 ThrClient.start();
+                listThreadClientPaiement.add(ThrClient);
             }
             ssUrgent = new ServerSocket(PORT_URGENCE);
             for(int i=0; i<3;i++) {
                 ClientHandlerUrgence ThrClient = new ClientHandlerUrgence(urgent);
                 ThrClient.start();
-                listThreadClient.add(ThrClient);
+                listThreadClientUrgent.add(ThrClient);
             }
 
             ssAdmin = new ServerSocket(PORT_ADMIN);
-            ClientHandlerAdmin thrAdmin = new ClientHandlerAdmin(ssAdmin, listThreadClient, BP, listSocketClient);
+            ClientHandlerAdmin thrAdmin = new ClientHandlerAdmin(ssAdmin, listThreadClientUrgent, listThreadClientPaiement, BP, listSocketClient);
             thrAdmin.start();
 
-            ClientHandlerAdminSecu thrAdmins = new ClientHandlerAdminSecu(PORT_ADMINS, listThreadClient, BP, listSocketClient);
+            ClientHandlerAdminSecu thrAdmins = new ClientHandlerAdminSecu(PORT_ADMINS, listThreadClientUrgent, listThreadClientPaiement, BP, listSocketClient);
             thrAdmins.start();
 
         }

@@ -19,12 +19,14 @@ public class ClientHandlerAdmin extends Thread {
     private ObjectInputStream ois;
     private ObjectOutputStream oos;
     private BD_Bean BP;
-    private ArrayList<ClientHandlerUrgence> listThreadClient;
+    private ArrayList<ClientHandlerUrgence> listThreadClientUrgent;
+    private ArrayList<ClientHandlerPaiement> listThreadClientPaiement;
     private ArrayList<Socket> listSocketClient;
 
-    public ClientHandlerAdmin(ServerSocket ss, ArrayList<ClientHandlerUrgence> liste, BD_Bean BP, ArrayList<Socket> listS) {
+    public ClientHandlerAdmin(ServerSocket ss, ArrayList<ClientHandlerUrgence> liste, ArrayList<ClientHandlerPaiement> liste2, BD_Bean BP, ArrayList<Socket> listS) {
         this.ssAdmin = ss;
-        this.listThreadClient = liste;
+        this.listThreadClientUrgent = liste;
+        this.listThreadClientPaiement = liste2;
         this.BP = BP;
         this.listSocketClient=listS;
     }
@@ -98,21 +100,33 @@ public class ClientHandlerAdmin extends Thread {
 
                                 case "PAUSE":
                                     //oosReservation.writeObject("Au revoir");
-                                    for (int i = 0; i < listThreadClient.size(); i++) {
-                                        if (listThreadClient.get(i).getConnecte() == 1)
-                                            listThreadClient.get(i).sendMessage("Serveur est en pause");
-
-                                        listThreadClient.get(i).interrupt();
+                                    for (ClientHandlerUrgence handlerUrgence : listThreadClientUrgent) {
+                                        System.out.println("fermeture connexion Urgent");
+                                        if (handlerUrgence.getConnecte() == 1) {
+                                            handlerUrgence.sendMessage("Serveur est en pause");
+                                            handlerUrgence.Stop();
+                                        }
                                     }
+                                    for (ClientHandlerPaiement handlerPaiement : listThreadClientPaiement) {
+                                        System.out.println("fermeture connexion Paiement");
+                                        handlerPaiement.Stop();
+                                    }
+
                                     oos.writeObject("Clients prévenus pour la pause du serveur");
                                     break;
 
                                 case "STOP":
                                     //oosReservation.writeObject("Au revoir");
-                                    for (int i = 0; i < listThreadClient.size(); i++) {
-                                        listThreadClient.get(i).sendMessage("Serveur est DOWN");
-                                        listThreadClient.get(i).interrupt();
+                                    for (ClientHandlerUrgence clientHandlerUrgence : listThreadClientUrgent) {
+                                        if (clientHandlerUrgence.getConnecte() == 1)
+                                            clientHandlerUrgence.sendMessage("Serveur est DOWN");
+
+                                        clientHandlerUrgence.Stop();
                                     }
+                                    for (ClientHandlerPaiement clientHandlerPaiement : listThreadClientPaiement) {
+                                        clientHandlerPaiement.Stop();
+                                    }
+
                                     oos.writeObject("Clients prévenus pouyr l'arrêt du serveur");
                                     break;
 

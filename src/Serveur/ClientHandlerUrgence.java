@@ -30,6 +30,19 @@ public class ClientHandlerUrgence extends Thread {
         urgence=1;
     }
 
+    public void Stop() throws IOException {
+        if(tacheUrgente.isConnected()) {
+            System.out.println(tacheUrgente.isConnected());
+            System.out.println(tacheUrgente.isBound());
+            System.out.println(tacheUrgente.isClosed());
+            System.out.println(tacheUrgente.isInputShutdown());
+            System.out.println(tacheUrgente.isOutputShutdown());
+            oos.writeObject(message);
+            oos.close();
+            this.tacheUrgente.close();
+        }
+    }
+
     @Override
     public void run() {
         int connexion = 1;
@@ -43,19 +56,8 @@ public class ClientHandlerUrgence extends Thread {
                 //ois = new ObjectInputStream(tacheUrgente.getInputStream());
                 oos = new ObjectOutputStream(tacheUrgente.getOutputStream());
                 // RECEPTION DE LA REPONSE DU CLIENT
-                while(true) {
-                    if(urgence==1) {
-                        oos.writeObject(message);
-                        //ois.close();
-                        oos.close();
-                        tacheUrgente.close();
-                        urgence=0;
-                        break;
-                    }
-                    if (currentThread().isInterrupted()) {
-                        oos.close();
-                        tacheUrgente.close();
-                    }
+                while(tacheUrgente.isConnected()) {
+
                 }
 
             } catch (InterruptedException | IOException e) {
