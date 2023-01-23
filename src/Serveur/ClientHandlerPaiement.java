@@ -197,14 +197,18 @@ public class ClientHandlerPaiement extends Thread {
 
                     while (continuer == 1) {
                         System.out.println("Boucle continuer");
+                        String requete;
+                        if(ServeurResa==0) {
+                            //reception requete cryptee du client
+                            cipherSymetrique = Cipher.getInstance("AES/ECB/PKCS5Padding");
+                            byte[] requeteByteCryptee = (byte[]) oisReservation.readObject();
 
-                        //reception requete cryptee du client
-                        cipherSymetrique = Cipher.getInstance("AES/ECB/PKCS5Padding");
-                        byte[] requeteByteCryptee = (byte[]) oisReservation.readObject();
-
-                        cipherSymetrique.init(Cipher.DECRYPT_MODE, secretKey);
-                        byte[] requeteByte = cipherSymetrique.doFinal(requeteByteCryptee);
-                        String requete = new String(requeteByte);
+                            cipherSymetrique.init(Cipher.DECRYPT_MODE, secretKey);
+                            byte[] requeteByte = cipherSymetrique.doFinal(requeteByteCryptee);
+                            requete = new String(requeteByte);
+                        } else {
+                            requete = (String) oisReservation.readObject();
+                        }
 
                         //reset a chaque requete pour eviter les erreurs entre les différentes requete d'un meme lance l'une à la suite de l'autre
                         BP.setTable("");
