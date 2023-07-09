@@ -1,4 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE server [
+        <!ELEMENT server (PORT_CHAMBRE|PORT_ACTIVITE|PORT_PAY|PORT_ADMIN|PORT_ADMINS|PORT_URGENCE|PORT_CARD|PORT_BANK|PORT_GROUPE|database-config)*>
+        <!ELEMENT PORT_CHAMBRE (#PCDATA)>
+        <!ELEMENT PORT_ACTIVITE (#PCDATA)>
+        <!ELEMENT PORT_PAY (#PCDATA)>
+        <!ELEMENT PORT_ADMIN (#PCDATA)>
+        <!ELEMENT PORT_ADMINS (#PCDATA)>
+        <!ELEMENT PORT_URGENCE (#PCDATA)>
+        <!ELEMENT PORT_CARD (#PCDATA)>
+        <!ELEMENT PORT_BANK (#PCDATA)>
+        <!ELEMENT PORT_GROUPE (#PCDATA)>
+        <!ELEMENT database-config (typeDB|IPDB|nameDB|portDB)*>
+        <!ELEMENT typeDB (#PCDATA)>
+        <!ELEMENT IPDB (#PCDATA)>
+        <!ELEMENT nameDB (#PCDATA)>
+        <!ELEMENT portDB (#PCDATA)>
+        ]>
 <server>
     <PORT_CHAMBRE>5056</PORT_CHAMBRE>
     <PORT_ACTIVITE>6000</PORT_ACTIVITE>
@@ -9,4 +26,12 @@
     <PORT_CARD>8000</PORT_CARD>
     <PORT_BANK>10000</PORT_BANK>
     <PORT_GROUPE>11000</PORT_GROUPE>
+    <database-config>
+        <typeDB>mysql</typeDB>
+        <IPDB>localhost</IPDB>
+        <nameDB>bd_holidays</nameDB>
+        <portDB>3306</portDB>
+    </database-config>
 </server>
+
+

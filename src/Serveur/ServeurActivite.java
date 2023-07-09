@@ -15,10 +15,12 @@ public class ServeurActivite extends Thread {
     private final TachesActivite tachesAFaire;
     private final BD_Bean BA;
 
-    public ServeurActivite(int PORT) throws SQLException {
+    public ServeurActivite(int PORT, String typeBD, String IPDB, String portDB, String nameDB) throws SQLException {
         setPort(PORT);
         tachesAFaire = new TachesActivite();
-        BA = new BeanActivite("jdbc:mysql://localhost:3306/bd_holidays","root","pwdmysql");
+        String urldb = "jdbc:" + typeBD + "://" + IPDB + ":" + portDB + "/" + nameDB;
+        System.out.println(urldb);
+        BA = new BeanActivite(urldb,"root","pwdmysql");
     }
 
     public void setPort(int PORT) { this.PORT_ACTIVITE = PORT; }

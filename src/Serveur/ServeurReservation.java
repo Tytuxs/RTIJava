@@ -15,10 +15,12 @@ public class ServeurReservation extends Thread {
     private final TachesReservation tachesAFaire;
     private final BD_Bean BR;
 
-    public ServeurReservation(int PORT) throws SQLException {
+    public ServeurReservation(int PORT, String typeBD, String IPDB, String portDB, String nameDB) throws SQLException {
         setPort(PORT);
         tachesAFaire = new TachesReservation();
-        BR = new BeanReservation("jdbc:mysql://localhost:3306/bd_holidays","root","pwdmysql");
+        String urldb = "jdbc:" + typeBD + "://" + IPDB + ":" + portDB + "/" + nameDB;
+        System.out.println(urldb);
+        BR = new BeanReservation(urldb,"root","pwdmysql");
     }
 
     public void setPort(int PORT) { this.PORT_CHAMBRE = PORT; }

@@ -42,8 +42,8 @@ public class App_ConnexionServer extends JDialog{
                 }
 
                 try {
-                    ServeurReservation serveurResaChambre = new ServeurReservation(defaultHandler.getPORT_CHAMBRE());
-                    ServeurActivite serveurResaActi = new ServeurActivite(defaultHandler.getPORT_ACTIVITE());
+                    ServeurReservation serveurResaChambre = new ServeurReservation(defaultHandler.getPORT_CHAMBRE(),defaultHandler.getTypeDB(),defaultHandler.getIPDB(),defaultHandler.getPortDB(),defaultHandler.getNameDB());
+                    ServeurActivite serveurResaActi = new ServeurActivite(defaultHandler.getPORT_ACTIVITE(),defaultHandler.getTypeDB(),defaultHandler.getIPDB(),defaultHandler.getPortDB(),defaultHandler.getNameDB());
                     ServeurPaiement serveurPaiement = new ServeurPaiement(defaultHandler.getPORT_PAY(), defaultHandler.getPORT_ADMIN(), defaultHandler.getPORT_ADMINS(), defaultHandler.getPORT_URGENCE());
                     ServeurCarte serveurCarte = new ServeurCarte(defaultHandler.getPORT_CARD());
                     ServeurBanque serveurBanque = new ServeurBanque(defaultHandler.getPORT_BANK());

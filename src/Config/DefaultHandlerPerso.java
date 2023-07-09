@@ -13,6 +13,10 @@ public class DefaultHandlerPerso extends org.xml.sax.helpers.DefaultHandler {
     private int PORT_CARD;
     private int PORT_BANK;
     private int PORT_GROUPE;
+    private String typeDB;
+    private String IPDB;
+    private String nameDB;
+    private String portDB;
 
     private StringBuilder currentValue = new StringBuilder();
 
@@ -50,6 +54,18 @@ public class DefaultHandlerPerso extends org.xml.sax.helpers.DefaultHandler {
         }
         if (qName.equalsIgnoreCase("PORT_GROUPE")) {
             PORT_GROUPE = Integer.parseInt(currentValue.toString());
+        }
+        if (qName.equalsIgnoreCase("typeDB")) {
+            typeDB = currentValue.toString();
+        }
+        if (qName.equalsIgnoreCase("nameDB")) {
+            nameDB = currentValue.toString();
+        }
+        if (qName.equalsIgnoreCase("IPDB")) {
+            IPDB = currentValue.toString();
+        }
+        if (qName.equalsIgnoreCase("portDB")) {
+            portDB = currentValue.toString();
         }
     }
     //reads the text value of the currently parsed element
@@ -93,5 +109,21 @@ public class DefaultHandlerPerso extends org.xml.sax.helpers.DefaultHandler {
 
     public int getPORT_GROUPE() {
         return PORT_GROUPE;
+    }
+
+    public String getTypeDB() {
+        return typeDB;
+    }
+
+    public String getIPDB() {
+        return IPDB;
+    }
+
+    public String getNameDB() {
+        return nameDB;
+    }
+
+    public String getPortDB() {
+        return portDB;
     }
 }
